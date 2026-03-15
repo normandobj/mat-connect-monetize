@@ -96,6 +96,7 @@ const Register = () => {
 
       if (error) throw error;
       toast.success('Perfil de atleta criado com sucesso!');
+      await refreshProfile();
       navigate('/dashboard');
     } catch (error: any) {
       toast.error(error.message);
