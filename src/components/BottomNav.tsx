@@ -1,75 +1,23 @@
-import { Home, Compass, PlusCircle, Bell, MessageSquare, User } from 'lucide-react';
+import { Home, Compass, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
   { icon: Home, label: 'Home', path: '/feed' },
-  { icon: Compass, label: 'Explore', path: '/explore' },
-  { icon: PlusCircle, label: 'Post', path: '/upload' },
-  { icon: MessageSquare, label: 'Chat', path: '/messages', badgeKey: 'messages' },
-  { icon: Bell, label: 'Alertas', path: '/notifications', badgeKey: 'notifications' },
+  { icon: Compass, label: 'Explorar', path: '/explore' },
   { icon: User, label: 'Perfil', path: '/dashboard' },
 ];
 
 export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [unreadNotifs, setUnreadNotifs] = useState(0);
-  const [unreadMessages, setUnreadMessages] = useState(0);
-
-  useEffect(() => {
-    if (!user) return;
-
-    const fetchUnreadNotifs = () => {
-      supabase
-        .from('notifications')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('read', false)
-        .then(({ count }) => setUnreadNotifs(count || 0));
-    };
-
-    const fetchUnreadMessages = () => {
-      supabase
-        .from('messages')
-        .select('id', { count: 'exact', head: true })
-        .eq('recipient_id', user.id)
-        .eq('read', false)
-        .then(({ count }) => setUnreadMessages(count || 0));
-    };
-
-    fetchUnreadNotifs();
-    fetchUnreadMessages();
-
-    const notifChannel = supabase
-      .channel('unread-notifs')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchUnreadNotifs())
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchUnreadNotifs())
-      .subscribe();
-
-    const msgChannel = supabase
-      .channel('unread-msgs')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `recipient_id=eq.${user.id}` }, () => fetchUnreadMessages())
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages', filter: `recipient_id=eq.${user.id}` }, () => fetchUnreadMessages())
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(notifChannel);
-      supabase.removeChannel(msgChannel);
-    };
-  }, [user]);
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur-md">
       <div className="mx-auto flex max-w-[430px] items-center justify-around py-2">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.path || (item.path === '/messages' && location.pathname.startsWith('/messages'));
-          const badgeCount = (item as any).badgeKey === 'notifications' ? unreadNotifs : (item as any).badgeKey === 'messages' ? unreadMessages : 0;
-          const showBadge = badgeCount > 0;
+          const isActive = location.pathname === item.path || 
+            (item.path === '/dashboard' && location.pathname.startsWith('/dashboard'));
           return (
             <button
               key={item.path}
@@ -83,17 +31,10 @@ export function BottomNav() {
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}
-              <div className="relative">
-                <item.icon
-                  size={22}
-                  className={isActive ? 'text-primary relative z-10' : 'text-muted-foreground relative z-10'}
-                />
-                {showBadge && (
-                  <span className="absolute -top-1 -right-1.5 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center z-20">
-                    {badgeCount > 9 ? '9+' : badgeCount}
-                  </span>
-                )}
-              </div>
+              <item.icon
+                size={22}
+                className={isActive ? 'text-primary relative z-10' : 'text-muted-foreground relative z-10'}
+              />
               <span className={`text-[10px] font-medium relative z-10 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
                 {item.label}
               </span>
