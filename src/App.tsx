@@ -34,6 +34,7 @@ const App = () => (
               <Route path="/athlete/:username" element={<AthleteProfile />} />
               <Route path="/feed" element={<Feed />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard/edit" element={<EditProfile />} />
               <Route path="/explore" element={<Explore />} />
               <Route path="/upload" element={<UploadPage />} />
               <Route path="/subscribe/:username" element={<Subscribe />} />
