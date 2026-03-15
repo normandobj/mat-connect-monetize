@@ -6,8 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { Radio } from 'lucide-react';
 import type { ContentItem } from '@/data/mockData';
 
 const PAGE_SIZE = 10;
