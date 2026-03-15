@@ -33,7 +33,7 @@ const Dashboard = () => {
     }
   }, [athleteProfile]);
 
-  if (loading || !athleteProfile) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Carregando...</p></div>;
+  if (loading || !athleteProfile) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground text-sm">Carregando dashboard...</p></div>;
 
   const athlete = athleteProfile;
 
