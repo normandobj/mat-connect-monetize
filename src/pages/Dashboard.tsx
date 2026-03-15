@@ -1,6 +1,7 @@
 import { AppShell } from '@/components/AppShell';
-import { Users, DollarSign, FileText, Plus, Radio, Dumbbell, Link, Copy, Check, ChevronDown, LogOut, Pencil, MessageSquare } from 'lucide-react';
+import { Users, DollarSign, FileText, Plus, Radio, Link, Copy, Check, ChevronDown, LogOut, Pencil, MessageSquare, Calendar } from 'lucide-react';
 import { LiveSection } from '@/components/LiveSection';
+import { ScheduleLiveModal } from '@/components/ScheduleLiveModal';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -17,6 +18,9 @@ const Dashboard = () => {
   const [subCount, setSubCount] = useState(0);
   const [revenue, setRevenue] = useState(0);
   const [isProfileLoading, setIsProfileLoading] = useState(true);
+  const [showLiveOptions, setShowLiveOptions] = useState(false);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [goingLive, setGoingLive] = useState(false);
 
   // On mount: if no athleteProfile yet, re-fetch from DB before deciding
   useEffect(() => {
@@ -102,6 +106,29 @@ const Dashboard = () => {
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
+  const handleGoLiveNow = async () => {
+    if (!athleteProfile) return;
+    setGoingLive(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-meet', {
+        body: {
+          athlete_id: athleteProfile.id,
+          title: `Live - ${athleteProfile.name}`,
+          description: '',
+          scheduled_at: null,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast.success('Live criada! Seus assinantes foram notificados.');
+      if (data?.meet_url) window.open(data.meet_url, '_blank');
+    } catch (err: any) {
+      toast.error(err.message || 'Erro ao criar live');
+    } finally {
+      setGoingLive(false);
+    }
+  };
+
   const handleLogout = async () => {
     await signOut();
     navigate('/');
@@ -150,17 +177,37 @@ const Dashboard = () => {
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Acoes Rapidas</h2>
           <div className="grid grid-cols-3 gap-2">
             {[
-              { icon: Plus, label: 'Postar Drill', href: '/upload' },
-              { icon: Dumbbell, label: 'Planilha', href: '/upload' },
-              { icon: MessageSquare, label: 'Chat', href: '/messages' },
-            ].map((action) => (
-              <button key={action.label} onClick={() => navigate(action.href)}
+              { icon: Plus, label: 'Postar Conteúdo', action: () => navigate('/upload') },
+              { icon: MessageSquare, label: 'Chat', action: () => navigate('/messages') },
+              { icon: Radio, label: 'Live', action: () => setShowLiveOptions(true) },
+            ].map((item) => (
+              <button key={item.label} onClick={item.action}
                 className="bg-card border border-border rounded-lg p-3 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform">
-                <action.icon size={20} className="text-primary" />
-                <span className="text-[10px] font-semibold text-foreground">{action.label}</span>
+                <item.icon size={20} className="text-primary" />
+                <span className="text-[10px] font-semibold text-foreground">{item.label}</span>
               </button>
             ))}
           </div>
+          {showLiveOptions && (
+            <div className="mt-2 bg-card border border-border rounded-lg overflow-hidden shadow-lg">
+              <button onClick={() => { setShowLiveOptions(false); handleGoLiveNow(); }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-primary/5 transition-colors border-b border-border">
+                <Radio size={16} className="text-destructive" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Ir ao vivo agora</p>
+                  <p className="text-[10px] text-muted-foreground">Iniciar transmissão imediatamente</p>
+                </div>
+              </button>
+              <button onClick={() => { setShowLiveOptions(false); setShowScheduleModal(true); }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-primary/5 transition-colors">
+                <Calendar size={16} className="text-primary" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Agendar live</p>
+                  <p className="text-[10px] text-muted-foreground">Escolher data e horário</p>
+                </div>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Live Section */}
@@ -240,6 +287,12 @@ const Dashboard = () => {
           <p className="text-xs text-muted-foreground mt-1">{revenue > 0 ? 'Baseado em assinaturas ativas' : 'Nenhum pagamento previsto'}</p>
         </div>
       </div>
+      {showScheduleModal && (
+        <ScheduleLiveModal
+          onClose={() => setShowScheduleModal(false)}
+          onSuccess={() => setShowScheduleModal(false)}
+        />
+      )}
     </AppShell>
   );
 };
