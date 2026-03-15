@@ -216,8 +216,10 @@ const UploadPage = () => {
                   <div><p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Planilha de Treino</p><p className="text-sm font-bold text-foreground">{title || 'Sem titulo'}</p></div>
                 </div>
               ) : (
-                <div className="aspect-video bg-muted rounded-md flex items-center justify-center mb-3">
-                  {videoFile ? <p className="text-xs text-muted-foreground">{videoFile.name}</p> : <span className="text-4xl">🥋</span>}
+                <div className="aspect-video bg-muted rounded-md flex items-center justify-center mb-3 overflow-hidden">
+                  {videoFile ? (
+                    <video src={URL.createObjectURL(videoFile)} className="w-full h-full object-cover" controls playsInline preload="metadata" />
+                  ) : <span className="text-4xl">🥋</span>}
                 </div>
               )}
               {isPlan && planText ? <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line line-clamp-6">{planText}</p> : <p className="text-xs text-muted-foreground mt-1">{description || 'Sem descricao'}</p>}
