@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Send } from 'lucide-react';
 import { AppShell } from '@/components/AppShell';
 import { useAuth } from '@/contexts/AuthContext';
@@ -25,6 +25,7 @@ interface Message {
 
 const Messages = () => {
   const navigate = useNavigate();
+  const { userId: routeUserId } = useParams();
   const { user, loading: authLoading } = useAuth();
   const { lang } = useLanguage();
   const [threads, setThreads] = useState<Thread[]>([]);
@@ -32,6 +33,7 @@ const Messages = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [threadProfiles, setThreadProfiles] = useState<Map<string, { name: string; photo: string | null }>>(new Map());
+  const [loadingThreads, setLoadingThreads] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,65 +46,93 @@ const Messages = () => {
     loadThreads();
   }, [user]);
 
+  // Auto-open conversation from route param
+  useEffect(() => {
+    if (routeUserId && user) {
+      setSelectedThread(routeUserId);
+      // Ensure profile is loaded for this user
+      loadProfileForUser(routeUserId);
+    }
+  }, [routeUserId, user]);
+
+  const loadProfileForUser = async (userId: string) => {
+    if (threadProfiles.has(userId)) return;
+    const { data: ap } = await supabase.from('athlete_profiles').select('user_id, name, photo_url').eq('user_id', userId).maybeSingle();
+    if (ap) {
+      setThreadProfiles(prev => new Map(prev).set(userId, { name: ap.name, photo: ap.photo_url }));
+      return;
+    }
+    const { data: p } = await supabase.from('profiles').select('id, full_name, avatar_url').eq('id', userId).maybeSingle();
+    if (p) {
+      setThreadProfiles(prev => new Map(prev).set(userId, { name: p.full_name || 'Usuário', photo: p.avatar_url }));
+    }
+  };
+
   const loadThreads = async () => {
     if (!user) return;
-    const { data: msgs } = await supabase
-      .from('messages')
-      .select('*')
-      .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
-      .order('created_at', { ascending: false });
+    setLoadingThreads(true);
+    try {
+      const { data: msgs } = await supabase
+        .from('messages')
+        .select('*')
+        .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
+        .order('created_at', { ascending: false });
 
-    if (!msgs) return;
+      if (!msgs || msgs.length === 0) { setThreads([]); return; }
 
-    // Group by conversation partner
-    const partnerMap = new Map<string, { lastMsg: string; unread: number; time: string }>();
-    for (const m of msgs) {
-      const partnerId = m.sender_id === user.id ? m.recipient_id : m.sender_id;
-      if (!partnerMap.has(partnerId)) {
-        partnerMap.set(partnerId, { lastMsg: m.body, unread: 0, time: m.created_at });
+      const partnerMap = new Map<string, { lastMsg: string; unread: number; time: string }>();
+      for (const m of msgs) {
+        const partnerId = m.sender_id === user.id ? m.recipient_id : m.sender_id;
+        if (!partnerMap.has(partnerId)) {
+          partnerMap.set(partnerId, { lastMsg: m.body, unread: 0, time: m.created_at });
+        }
+        if (!m.read && m.recipient_id === user.id) {
+          const entry = partnerMap.get(partnerId)!;
+          entry.unread++;
+        }
       }
-      if (!m.read && m.recipient_id === user.id) {
-        const entry = partnerMap.get(partnerId)!;
-        entry.unread++;
+
+      const partnerIds = [...partnerMap.keys()];
+
+      const { data: athleteProfiles } = await supabase
+        .from('athlete_profiles')
+        .select('user_id, name, photo_url')
+        .in('user_id', partnerIds);
+
+      const { data: regularProfiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url')
+        .in('id', partnerIds);
+
+      const profileMap = new Map<string, { name: string; photo: string | null }>();
+      for (const p of regularProfiles || []) {
+        profileMap.set(p.id, { name: p.full_name || 'Usuário', photo: p.avatar_url });
       }
+      for (const a of athleteProfiles || []) {
+        profileMap.set(a.user_id, { name: a.name, photo: a.photo_url });
+      }
+      setThreadProfiles(prev => {
+        const next = new Map(prev);
+        profileMap.forEach((v, k) => next.set(k, v));
+        return next;
+      });
+
+      const threadList: Thread[] = partnerIds.map((pid) => {
+        const info = partnerMap.get(pid)!;
+        const profile = profileMap.get(pid);
+        return {
+          id: pid,
+          name: profile?.name || 'Usuário',
+          photo_url: profile?.photo || null,
+          lastMessage: info.lastMsg,
+          unreadCount: info.unread,
+        };
+      });
+
+      setThreads(threadList);
+    } finally {
+      setLoadingThreads(false);
     }
-
-    // Fetch partner profiles (check athlete_profiles first, then profiles)
-    const partnerIds = [...partnerMap.keys()];
-    if (partnerIds.length === 0) { setThreads([]); return; }
-
-    const { data: athleteProfiles } = await supabase
-      .from('athlete_profiles')
-      .select('user_id, name, photo_url')
-      .in('user_id', partnerIds);
-
-    const { data: regularProfiles } = await supabase
-      .from('profiles')
-      .select('id, full_name, avatar_url')
-      .in('id', partnerIds);
-
-    const profileMap = new Map<string, { name: string; photo: string | null }>();
-    for (const p of regularProfiles || []) {
-      profileMap.set(p.id, { name: p.full_name || 'Usuário', photo: p.avatar_url });
-    }
-    for (const a of athleteProfiles || []) {
-      profileMap.set(a.user_id, { name: a.name, photo: a.photo_url });
-    }
-    setThreadProfiles(profileMap);
-
-    const threadList: Thread[] = partnerIds.map((pid) => {
-      const info = partnerMap.get(pid)!;
-      const profile = profileMap.get(pid);
-      return {
-        id: pid,
-        name: profile?.name || 'Usuário',
-        photo_url: profile?.photo || null,
-        lastMessage: info.lastMsg,
-        unreadCount: info.unread,
-      };
-    });
-
-    setThreads(threadList);
   };
 
   // Load messages for selected thread
@@ -199,7 +229,7 @@ const Messages = () => {
         <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-background sticky top-0 z-10">
           {selectedThread ? (
             <>
-              <button onClick={() => setSelectedThread(null)} className="w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center">
+              <button onClick={() => { setSelectedThread(null); if (routeUserId) navigate('/messages'); }} className="w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center">
                 <ArrowLeft size={16} className="text-foreground" />
               </button>
               <div className="flex items-center gap-2">
@@ -221,11 +251,22 @@ const Messages = () => {
         {!selectedThread ? (
           /* Thread list */
           <div className="flex-1 overflow-y-auto">
-            {threads.length === 0 ? (
+            {loadingThreads ? (
               <div className="flex items-center justify-center h-full">
                 <p className="text-sm text-muted-foreground">
-                  {lang === 'pt' ? 'Nenhuma mensagem ainda.' : 'No messages yet.'}
+                  {lang === 'pt' ? 'Carregando...' : 'Loading...'}
                 </p>
+              </div>
+            ) : threads.length === 0 ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center px-6">
+                  <p className="text-sm text-muted-foreground">
+                    {lang === 'pt' ? 'Nenhuma mensagem ainda.' : 'No messages yet.'}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {lang === 'pt' ? 'Assine um atleta para enviar mensagens.' : 'Subscribe to an athlete to send messages.'}
+                  </p>
+                </div>
               </div>
             ) : (
               threads.map((thread) => (
@@ -258,6 +299,13 @@ const Messages = () => {
           /* Chat */
           <>
             <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
+              {messages.length === 0 && (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-sm text-muted-foreground">
+                    {lang === 'pt' ? 'Comece a conversa!' : 'Start the conversation!'}
+                  </p>
+                </div>
+              )}
               {messages.map((msg) => {
                 const isMine = msg.sender_id === user.id;
                 return (

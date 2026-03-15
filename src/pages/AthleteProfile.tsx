@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { BeltBadge } from '@/components/BeltBadge';
 import { ContentCard } from '@/components/ContentCard';
-import { ArrowLeft, Users, Video, Globe, Dumbbell, Radio, FileText, Star, Check } from 'lucide-react';
+import { ArrowLeft, Users, Video, Globe, Dumbbell, Radio, FileText, Star, Check, MessageSquare } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -218,8 +218,16 @@ const AthleteProfile = () => {
           <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-border">
             <div className="mx-auto max-w-[430px] px-4 py-3">
               {isSubscribed ? (
-                <div className="w-full bg-muted text-muted-foreground font-bold text-sm py-3.5 rounded-md text-center flex items-center justify-center gap-2">
-                  <Check size={16} /> {isEn ? 'Subscribed' : 'Assinado'}
+                <div className="flex gap-2">
+                  <div className="flex-1 bg-muted text-muted-foreground font-bold text-sm py-3.5 rounded-md text-center flex items-center justify-center gap-2">
+                    <Check size={16} /> {isEn ? 'Subscribed' : 'Assinado'}
+                  </div>
+                  <button
+                    onClick={() => navigate(`/messages/${athlete.user_id}`)}
+                    className="bg-primary text-primary-foreground font-bold text-sm py-3.5 px-4 rounded-md active:scale-[0.98] transition-transform flex items-center gap-2"
+                  >
+                    <MessageSquare size={16} /> {isEn ? 'Message' : 'Mensagem'}
+                  </button>
                 </div>
               ) : (
                 <button

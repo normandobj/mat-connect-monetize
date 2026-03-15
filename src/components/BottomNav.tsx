@@ -1,4 +1,4 @@
-import { Home, Compass, PlusCircle, Bell, User } from 'lucide-react';
+import { Home, Compass, PlusCircle, Bell, MessageSquare, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
@@ -9,43 +9,67 @@ const navItems = [
   { icon: Home, label: 'Home', path: '/feed' },
   { icon: Compass, label: 'Explore', path: '/explore' },
   { icon: PlusCircle, label: 'Post', path: '/upload' },
+  { icon: MessageSquare, label: 'Chat', path: '/messages', badgeKey: 'messages' },
   { icon: Bell, label: 'Alertas', path: '/notifications', badgeKey: 'notifications' },
-  { icon: User, label: 'Profile', path: '/dashboard' },
+  { icon: User, label: 'Perfil', path: '/dashboard' },
 ];
 
 export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadNotifs, setUnreadNotifs] = useState(0);
+  const [unreadMessages, setUnreadMessages] = useState(0);
 
   useEffect(() => {
     if (!user) return;
-    const fetchUnread = () => {
+
+    const fetchUnreadNotifs = () => {
       supabase
         .from('notifications')
         .select('id', { count: 'exact', head: true })
         .eq('user_id', user.id)
         .eq('read', false)
-        .then(({ count }) => setUnreadCount(count || 0));
+        .then(({ count }) => setUnreadNotifs(count || 0));
     };
-    fetchUnread();
 
-    const channel = supabase
+    const fetchUnreadMessages = () => {
+      supabase
+        .from('messages')
+        .select('id', { count: 'exact', head: true })
+        .eq('recipient_id', user.id)
+        .eq('read', false)
+        .then(({ count }) => setUnreadMessages(count || 0));
+    };
+
+    fetchUnreadNotifs();
+    fetchUnreadMessages();
+
+    const notifChannel = supabase
       .channel('unread-notifs')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchUnread())
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchUnread())
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchUnreadNotifs())
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchUnreadNotifs())
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    const msgChannel = supabase
+      .channel('unread-msgs')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `recipient_id=eq.${user.id}` }, () => fetchUnreadMessages())
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages', filter: `recipient_id=eq.${user.id}` }, () => fetchUnreadMessages())
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(notifChannel);
+      supabase.removeChannel(msgChannel);
+    };
   }, [user]);
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur-md">
       <div className="mx-auto flex max-w-[430px] items-center justify-around py-2">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          const showBadge = (item as any).badgeKey === 'notifications' && unreadCount > 0;
+          const isActive = location.pathname === item.path || (item.path === '/messages' && location.pathname.startsWith('/messages'));
+          const badgeCount = (item as any).badgeKey === 'notifications' ? unreadNotifs : (item as any).badgeKey === 'messages' ? unreadMessages : 0;
+          const showBadge = badgeCount > 0;
           return (
             <button
               key={item.path}
@@ -66,7 +90,7 @@ export function BottomNav() {
                 />
                 {showBadge && (
                   <span className="absolute -top-1 -right-1.5 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center z-20">
-                    {unreadCount > 9 ? '9+' : unreadCount}
+                    {badgeCount > 9 ? '9+' : badgeCount}
                   </span>
                 )}
               </div>
