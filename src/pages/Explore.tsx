@@ -23,6 +23,7 @@ const Explore = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [athletes, setAthletes] = useState<Athlete[]>([]);
+  const [loadingAthletes, setLoadingAthletes] = useState(true);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -31,35 +32,41 @@ const Explore = () => {
   }, [user, authLoading]);
 
   useEffect(() => {
-    supabase.from('athlete_profiles').select('*').then(({ data, error }) => {
-      if (error) {
-        toast.error('Erro ao carregar atletas: ' + error.message);
-        return;
-      }
-      if (data && data.length > 0) {
-        setAthletes(data.map(a => ({
-          id: a.id,
-          username: a.username,
-          name: a.name,
-          belt: a.belt as BeltRank,
-          academy: a.academy || '',
-          city: a.city || '',
-          country: a.country || '',
-          countryFlag: a.country_flag || '🇧🇷',
-          bio_pt: a.bio_pt || '',
-          bio_en: a.bio_en || '',
-          photo: a.photo_url || '',
-          coverPhoto: a.cover_photo_url || '',
-          subscribers: 0,
-          monthlyPrice: a.monthly_price,
-          quarterlyPrice: a.quarterly_price,
-          annualPrice: a.annual_price,
-          contentCount: 0,
-        })));
-      } else {
+    const fetchAthletes = async () => {
+      try {
+        const { data, error } = await supabase.from('athlete_profiles').select('*');
+        if (error) throw error;
+        if (data && data.length > 0) {
+          setAthletes(data.map(a => ({
+            id: a.id,
+            username: a.username,
+            name: a.name,
+            belt: a.belt as BeltRank,
+            academy: a.academy || '',
+            city: a.city || '',
+            country: a.country || '',
+            countryFlag: a.country_flag || '🇧🇷',
+            bio_pt: a.bio_pt || '',
+            bio_en: a.bio_en || '',
+            photo: a.photo_url || '',
+            coverPhoto: a.cover_photo_url || '',
+            subscribers: 0,
+            monthlyPrice: a.monthly_price,
+            quarterlyPrice: a.quarterly_price,
+            annualPrice: a.annual_price,
+            contentCount: 0,
+          })));
+        } else {
+          setAthletes(mockAthletes);
+        }
+      } catch (err: any) {
+        toast.error('Erro ao carregar atletas');
         setAthletes(mockAthletes);
+      } finally {
+        setLoadingAthletes(false);
       }
-    });
+    };
+    fetchAthletes();
   }, []);
 
   const filtered = athletes.filter((a) => {
@@ -87,23 +94,29 @@ const Explore = () => {
               className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${activeFilter === f.value ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground'}`}>{f.label}</button>
           ))}
         </div>
-        <section className="mt-6">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Trending this week</h2>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-            {athletes.slice(0, 3).map((athlete) => (
-              <AthleteCard key={athlete.id} athlete={athlete} />
-            ))}
-          </div>
-        </section>
-        <section className="mt-6">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">All Athletes</h2>
-          <div className="grid grid-cols-2 gap-3">
-            {filtered.map((athlete) => (
-              <div key={athlete.id} className="w-full"><AthleteCard athlete={athlete} /></div>
-            ))}
-          </div>
-          {filtered.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">No athletes found.</p>}
-        </section>
+        {loadingAthletes ? (
+          <p className="text-sm text-muted-foreground text-center py-12">Carregando...</p>
+        ) : (
+          <>
+            <section className="mt-6">
+              <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Trending this week</h2>
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                {athletes.slice(0, 3).map((athlete) => (
+                  <AthleteCard key={athlete.id} athlete={athlete} />
+                ))}
+              </div>
+            </section>
+            <section className="mt-6">
+              <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">All Athletes</h2>
+              <div className="grid grid-cols-2 gap-3">
+                {filtered.map((athlete) => (
+                  <div key={athlete.id} className="w-full"><AthleteCard athlete={athlete} /></div>
+                ))}
+              </div>
+              {filtered.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">No athletes found.</p>}
+            </section>
+          </>
+        )}
       </div>
     </AppShell>
   );

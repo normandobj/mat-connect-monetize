@@ -29,28 +29,61 @@ export function useComments(contentId: string, expanded: boolean) {
   useEffect(() => {
     if (!expanded) return;
     setLoading(true);
-    supabase
-      .from('content_comments')
-      .select('id, body, created_at, user_id')
-      .eq('content_id', contentId)
-      .order('created_at', { ascending: true })
-      .then(async ({ data }) => {
+    const fetchComments = async () => {
+      try {
+        const { data } = await supabase
+          .from('content_comments')
+          .select('id, body, created_at, user_id')
+          .eq('content_id', contentId)
+          .order('created_at', { ascending: true });
         if (!data) { setLoading(false); return; }
-        // Fetch commenter names from profiles
+
         const userIds = [...new Set(data.map((c) => c.user_id))];
-        const { data: profiles } = await supabase
-          .from('profiles')
-          .select('id, full_name')
-          .in('id', userIds);
-        const nameMap = new Map((profiles || []).map((p) => [p.id, p.full_name || 'Anônimo']));
+        const nameMap = new Map<string, string>();
+
+        // Try profiles table first
+        try {
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, full_name, email')
+            .in('id', userIds);
+          if (profiles) {
+            profiles.forEach((p) => {
+              const name = p.full_name || (p.email ? p.email.split('@')[0] : null);
+              if (name) nameMap.set(p.id, name);
+            });
+          }
+        } catch {}
+
+        // For any user_id still missing, use email prefix fallback
+        const missing = userIds.filter((id) => !nameMap.has(id));
+        if (missing.length > 0) {
+          try {
+            const { data: fallbackProfiles } = await supabase
+              .from('profiles')
+              .select('id, email')
+              .in('id', missing);
+            if (fallbackProfiles) {
+              fallbackProfiles.forEach((p) => {
+                if (p.email) nameMap.set(p.id, p.email.split('@')[0]);
+              });
+            }
+          } catch {}
+        }
+
         setComments(
           data.map((c) => ({
             ...c,
             commenter_name: nameMap.get(c.user_id) || 'Anônimo',
           }))
         );
+      } catch {
+        // silently fail
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+    fetchComments();
   }, [contentId, expanded]);
 
   // Realtime subscription
