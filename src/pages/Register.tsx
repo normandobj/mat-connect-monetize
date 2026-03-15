@@ -1,6 +1,6 @@
 import { ArrowLeft, Camera, ImagePlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { type BeltRank } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,11 +16,18 @@ const belts: { rank: BeltRank; color: string }[] = [
 
 const Register = () => {
   const navigate = useNavigate();
-  const { user, refreshProfile } = useAuth();
+  const { user, athleteProfile, refreshProfile } = useAuth();
   const [step, setStep] = useState(1);
   const [selectedBelt, setSelectedBelt] = useState<BeltRank>('blue');
   const [monthlyPrice, setMonthlyPrice] = useState(29);
   const [loading, setLoading] = useState(false);
+
+  // Redirect if already registered
+  useEffect(() => {
+    if (athleteProfile) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [athleteProfile, navigate]);
 
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
