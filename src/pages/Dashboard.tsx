@@ -17,8 +17,10 @@ const Dashboard = () => {
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth');
+    } else if (!loading && user && !athleteProfile) {
+      navigate('/register/athlete');
     }
-  }, [user, loading]);
+  }, [user, loading, athleteProfile]);
 
   useEffect(() => {
     if (athleteProfile) {
