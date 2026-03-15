@@ -80,6 +80,15 @@ const Dashboard = () => {
         else if (sub.plan === 'annual') totalRevenue += athleteProfile.annual_price;
       });
       setRevenue(totalRevenue);
+
+      // Check for active/scheduled lives
+      const { data: activeLives } = await supabase.from('content')
+        .select('id')
+        .eq('athlete_id', athleteProfile.id)
+        .eq('type', 'live')
+        .in('live_status', ['scheduled', 'live'])
+        .limit(1);
+      setHasActiveLive((activeLives?.length || 0) > 0);
     } catch (err: any) {
       toast.error('Erro ao carregar dados: ' + err.message);
     }
