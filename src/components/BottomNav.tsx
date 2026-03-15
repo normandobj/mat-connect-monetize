@@ -45,7 +45,7 @@ export function BottomNav() {
       <div className="mx-auto flex max-w-[430px] items-center justify-around py-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
-          const showBadge = item.path === '/messages' && unreadCount > 0;
+          const showBadge = (item as any).badgeKey === 'notifications' && unreadCount > 0;
           return (
             <button
               key={item.path}
