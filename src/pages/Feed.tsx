@@ -1,6 +1,7 @@
 import { AppShell } from '@/components/AppShell';
 import { ContentCard } from '@/components/ContentCard';
-import { Bell, ChevronRight, LogOut, Loader2 } from 'lucide-react';
+import { NotificationBell } from '@/components/NotificationBell';
+import { ChevronRight, LogOut, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -124,6 +125,7 @@ const Feed = () => {
             <button onClick={() => setLang('pt')} className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${lang === 'pt' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}>PT</button>
             <button onClick={() => setLang('en')} className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${lang === 'en' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}>EN</button>
           </div>
+          <NotificationBell />
           <button onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
             <LogOut size={18} />
           </button>
