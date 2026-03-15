@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { BeltBadge } from '@/components/BeltBadge';
 import { ContentCard } from '@/components/ContentCard';
-import { ArrowLeft, Users, Video, Globe, Dumbbell, Radio, FileText, Star, Check } from 'lucide-react';
+import { ArrowLeft, Users, Video, Globe, Dumbbell, Radio, FileText, Star, Check, MessageSquare } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
