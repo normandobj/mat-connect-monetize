@@ -1,5 +1,6 @@
 import { AppShell } from '@/components/AppShell';
 import { Users, DollarSign, FileText, Plus, Radio, Dumbbell, Link, Copy, Check, ChevronDown, LogOut, Pencil, MessageSquare } from 'lucide-react';
+import { LiveSection } from '@/components/LiveSection';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -147,10 +148,9 @@ const Dashboard = () => {
         {/* Quick Actions - Post & Chat */}
         <div className="mt-6">
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Acoes Rapidas</h2>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             {[
               { icon: Plus, label: 'Postar Drill', href: '/upload' },
-              { icon: Radio, label: 'Fazer Live', href: '/upload' },
               { icon: Dumbbell, label: 'Planilha', href: '/upload' },
               { icon: MessageSquare, label: 'Chat', href: '/messages' },
             ].map((action) => (
@@ -162,6 +162,9 @@ const Dashboard = () => {
             ))}
           </div>
         </div>
+
+        {/* Live Section */}
+        <LiveSection />
 
         <div className="bg-card border border-border rounded-lg p-4 mt-4 shadow-card">
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Receita Mensal</h2>

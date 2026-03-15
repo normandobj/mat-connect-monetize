@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { GoogleMeetConnection } from '@/components/GoogleMeetConnection';
 
 const EditProfile = () => {
   const navigate = useNavigate();
@@ -287,6 +288,12 @@ const EditProfile = () => {
               <p className="text-[10px] text-muted-foreground">{isEn ? 'Disabled — hidden from subscribers' : 'Desativado — oculto para assinantes'}</p>
             )}
           </div>
+        </div>
+
+        {/* Google Meet Connection */}
+        <div className="mb-6">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">{isEn ? 'Connections' : 'Conexões'}</h2>
+          <GoogleMeetConnection />
         </div>
 
         <button onClick={handleSave} disabled={saving}

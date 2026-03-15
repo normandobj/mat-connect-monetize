@@ -39,6 +39,10 @@ export interface ContentItem {
   createdAt: string;
   locked: boolean;
   liveDate?: string;
+  meetUrl?: string;
+  scheduledAt?: string;
+  isLiveNow?: boolean;
+  liveStatus?: string;
 }
 
 export const mockAthletes: Athlete[] = [
