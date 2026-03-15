@@ -1,6 +1,6 @@
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Camera, ImagePlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { type BeltRank } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,7 +22,6 @@ const Register = () => {
   const [monthlyPrice, setMonthlyPrice] = useState(29);
   const [loading, setLoading] = useState(false);
 
-  // Form fields
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [academy, setAcademy] = useState('');
@@ -30,6 +29,32 @@ const Register = () => {
   const [country, setCountry] = useState('Brazil');
   const [bioPt, setBioPt] = useState('');
   const [pixKey, setPixKey] = useState('');
+
+  // Photo state
+  const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
+  const [profilePreview, setProfilePreview] = useState<string | null>(null);
+  const [coverPhoto, setCoverPhoto] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const profileInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = (file: File, type: 'profile' | 'cover') => {
+    const url = URL.createObjectURL(file);
+    if (type === 'profile') {
+      setProfilePhoto(file);
+      setProfilePreview(url);
+    } else {
+      setCoverPhoto(file);
+      setCoverPreview(url);
+    }
+  };
+
+  const uploadPhoto = async (file: File, path: string) => {
+    const { error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
+    if (error) throw error;
+    const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
+    return publicUrl;
+  };
 
   const handleSubmit = async () => {
     if (!user) {
@@ -40,6 +65,18 @@ const Register = () => {
 
     setLoading(true);
     try {
+      let photoUrl = null;
+      let coverPhotoUrl = null;
+
+      if (profilePhoto) {
+        const ext = profilePhoto.name.split('.').pop();
+        photoUrl = await uploadPhoto(profilePhoto, `${user.id}/profile.${ext}`);
+      }
+      if (coverPhoto) {
+        const ext = coverPhoto.name.split('.').pop();
+        coverPhotoUrl = await uploadPhoto(coverPhoto, `${user.id}/cover.${ext}`);
+      }
+
       const { error } = await supabase.from('athlete_profiles').insert({
         user_id: user.id,
         username: username.toLowerCase().replace(/[^a-z0-9]/g, ''),
@@ -53,6 +90,8 @@ const Register = () => {
         quarterly_price: Math.round(monthlyPrice * 2.7),
         annual_price: Math.round(monthlyPrice * 9),
         pix_key: pixKey,
+        photo_url: photoUrl,
+        cover_photo_url: coverPhotoUrl,
       });
 
       if (error) throw error;
@@ -137,9 +176,54 @@ const Register = () => {
         {step === 3 && (
           <div className="flex-1 flex flex-col gap-4">
             <h2 className="text-sm font-bold text-foreground">Profile & Bio</h2>
+
+            {/* Cover photo upload */}
+            <div>
+              <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Cover Photo</label>
+              <input type="file" ref={coverInputRef} accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleFileSelect(e.target.files[0], 'cover'); }} />
+              <button onClick={() => coverInputRef.current?.click()}
+                className="mt-1 w-full h-28 rounded-lg border-2 border-dashed border-border bg-card/50 flex items-center justify-center overflow-hidden relative">
+                {coverPreview ? (
+                  <img src={coverPreview} alt="Cover" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="flex flex-col items-center gap-1 text-muted-foreground">
+                    <ImagePlus size={24} />
+                    <span className="text-xs font-medium">Add cover photo</span>
+                  </div>
+                )}
+                {coverPreview && (
+                  <div className="absolute inset-0 bg-background/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                    <Camera size={20} className="text-foreground" />
+                  </div>
+                )}
+              </button>
+            </div>
+
+            {/* Profile photo upload */}
+            <div>
+              <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Profile Photo</label>
+              <input type="file" ref={profileInputRef} accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleFileSelect(e.target.files[0], 'profile'); }} />
+              <button onClick={() => profileInputRef.current?.click()}
+                className="mt-1 w-24 h-24 rounded-xl border-2 border-dashed border-border bg-card/50 flex items-center justify-center overflow-hidden relative">
+                {profilePreview ? (
+                  <img src={profilePreview} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="flex flex-col items-center gap-1 text-muted-foreground">
+                    <Camera size={20} />
+                    <span className="text-[10px] font-medium">Photo</span>
+                  </div>
+                )}
+                {profilePreview && (
+                  <div className="absolute inset-0 bg-background/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                    <Camera size={16} className="text-foreground" />
+                  </div>
+                )}
+              </button>
+            </div>
+
             <div>
               <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Bio (Portuguese)</label>
-              <textarea value={bioPt} onChange={(e) => setBioPt(e.target.value)} placeholder="Conte um pouco sobre você..." rows={4} className="mt-1 w-full bg-card border border-border rounded-md px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none" />
+              <textarea value={bioPt} onChange={(e) => setBioPt(e.target.value)} placeholder="Conte um pouco sobre você..." rows={3} className="mt-1 w-full bg-card border border-border rounded-md px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none" />
             </div>
             <div>
               <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Monthly Price (R$)</label>

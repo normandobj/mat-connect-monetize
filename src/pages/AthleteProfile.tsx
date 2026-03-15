@@ -111,8 +111,12 @@ const AthleteProfile = () => {
         </div>
 
         <div className="px-4 -mt-12 relative z-10">
-          <div className="w-24 h-24 rounded-xl bg-card border-4 border-background flex items-center justify-center text-3xl font-black text-primary/40">
-            {athlete.name.charAt(0)}
+          <div className="w-24 h-24 rounded-xl bg-card border-4 border-background flex items-center justify-center text-3xl font-black text-primary/40 overflow-hidden">
+            {athlete.photo_url ? (
+              <img src={athlete.photo_url} alt={athlete.name} className="w-full h-full object-cover" />
+            ) : (
+              athlete.name.charAt(0)
+            )}
           </div>
           <div className="mt-3">
             <h1 className="text-2xl font-bold text-foreground tracking-tight">{athlete.name}</h1>
