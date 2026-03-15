@@ -287,6 +287,12 @@ const Dashboard = () => {
           <p className="text-xs text-muted-foreground mt-1">{revenue > 0 ? 'Baseado em assinaturas ativas' : 'Nenhum pagamento previsto'}</p>
         </div>
       </div>
+      {showScheduleModal && (
+        <ScheduleLiveModal
+          onClose={() => setShowScheduleModal(false)}
+          onSuccess={() => setShowScheduleModal(false)}
+        />
+      )}
     </AppShell>
   );
 };
