@@ -87,7 +87,6 @@ const Register = () => {
         monthly_price: monthlyPrice,
         quarterly_price: Math.round(monthlyPrice * 2.7),
         annual_price: Math.round(monthlyPrice * 9),
-        pix_key: pixKey,
         photo_url: photoUrl,
         cover_photo_url: coverPhotoUrl,
       });
