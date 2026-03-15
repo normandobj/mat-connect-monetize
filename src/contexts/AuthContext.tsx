@@ -32,16 +32,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchUserData = async (userId: string) => {
     // Fetch role
     const { data: roleData } = await supabase.rpc('get_user_role', { _user_id: userId });
-    setUserRole(roleData || null);
-
-    // Fetch athlete profile if athlete
-    if (roleData === 'athlete') {
-      const { data: athlete } = await supabase
-        .from('athlete_profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .maybeSingle();
+    
+    // Always check for athlete profile regardless of role
+    const { data: athlete } = await supabase
+      .from('athlete_profiles')
+      .select('*')
+      .eq('user_id', userId)
+      .maybeSingle();
+    
+    if (athlete) {
       setAthleteProfile(athlete);
+      setUserRole('athlete');
+      // Ensure user_roles table is in sync
+      if (roleData !== 'athlete') {
+        await supabase.from('user_roles').upsert({ user_id: userId, role: 'athlete' as const }, { onConflict: 'user_id,role' }).select();
+      }
+    } else {
+      setUserRole(roleData || null);
+      setAthleteProfile(null);
     }
   };
 
