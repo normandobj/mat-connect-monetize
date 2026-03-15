@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import type { ContentItem } from '@/data/mockData';
 
 const Feed = () => {
@@ -32,49 +33,64 @@ const Feed = () => {
   }, [subscribedAthleteIds]);
 
   const fetchAthletes = async () => {
-    const { data } = await supabase.from('athlete_profiles').select('*');
-    setAthletes(data || []);
+    try {
+      const { data, error } = await supabase.from('athlete_profiles').select('*');
+      if (error) throw error;
+      setAthletes(data || []);
+    } catch (err: any) {
+      toast.error('Erro ao carregar atletas: ' + err.message);
+    }
   };
 
   const fetchSubscriptions = async () => {
     if (!user) return;
-    const { data } = await supabase.from('subscriptions').select('athlete_id').eq('subscriber_id', user.id).eq('status', 'active');
-    setSubscribedAthleteIds((data || []).map((s: any) => s.athlete_id));
+    try {
+      const { data, error } = await supabase.from('subscriptions').select('athlete_id').eq('subscriber_id', user.id).eq('status', 'active');
+      if (error) throw error;
+      setSubscribedAthleteIds((data || []).map((s: any) => s.athlete_id));
+    } catch (err: any) {
+      toast.error('Erro ao carregar assinaturas: ' + err.message);
+    }
   };
 
   const fetchContent = async () => {
-    // Fetch all content - RLS handles visibility
-    const { data } = await supabase
-      .from('content')
-      .select('*, athlete_profiles!inner(id, name, belt, username, photo_url)')
-      .order('created_at', { ascending: false })
-      .limit(50);
+    try {
+      const { data, error } = await supabase
+        .from('content')
+        .select('*, athlete_profiles!inner(id, name, belt, username, photo_url)')
+        .order('created_at', { ascending: false })
+        .limit(50);
 
-    if (data) {
-      const mapped: ContentItem[] = data.map((item: any) => {
-        const isSubscribed = subscribedAthleteIds.includes(item.athlete_id);
-        return {
-          id: item.id,
-          type: item.type as any,
-          title_pt: item.title_pt,
-          title_en: item.title_en || item.title_pt,
-          description_pt: item.description_pt || '',
-          description_en: item.description_en || item.description_pt || '',
-          planText_pt: item.plan_text_pt,
-          planText_en: item.plan_text_en,
-          thumbnail: item.thumbnail_url || '',
-          videoUrl: item.video_url || undefined,
-          duration: item.duration,
-          athleteId: item.athlete_id,
-          athleteName: item.athlete_profiles.name,
-          athleteBelt: item.athlete_profiles.belt as any,
-          athletePhoto: item.athlete_profiles.photo_url || '',
-          createdAt: item.created_at,
-          locked: item.visibility === 'subscribers' && !isSubscribed,
-          liveDate: item.live_date,
-        };
-      });
-      setContent(mapped);
+      if (error) throw error;
+
+      if (data) {
+        const mapped: ContentItem[] = data.map((item: any) => {
+          const isSubscribed = subscribedAthleteIds.includes(item.athlete_id);
+          return {
+            id: item.id,
+            type: item.type as any,
+            title_pt: item.title_pt,
+            title_en: item.title_en || item.title_pt,
+            description_pt: item.description_pt || '',
+            description_en: item.description_en || item.description_pt || '',
+            planText_pt: item.plan_text_pt,
+            planText_en: item.plan_text_en,
+            thumbnail: item.thumbnail_url || '',
+            videoUrl: item.video_url || undefined,
+            duration: item.duration,
+            athleteId: item.athlete_id,
+            athleteName: item.athlete_profiles.name,
+            athleteBelt: item.athlete_profiles.belt as any,
+            athletePhoto: item.athlete_profiles.photo_url || '',
+            createdAt: item.created_at,
+            locked: item.visibility === 'subscribers' && !isSubscribed,
+            liveDate: item.live_date,
+          };
+        });
+        setContent(mapped);
+      }
+    } catch (err: any) {
+      toast.error('Erro ao carregar conteúdo: ' + err.message);
     }
   };
 
@@ -101,7 +117,6 @@ const Feed = () => {
         </div>
       </header>
 
-      {/* Stories */}
       <div className="flex gap-3 overflow-x-auto px-4 py-3 scrollbar-hide">
         {athletes.slice(0, 5).map((athlete) => (
           <button key={athlete.id} onClick={() => navigate(`/athlete/${athlete.username}`)} className="flex flex-col items-center gap-1 flex-shrink-0">
@@ -123,7 +138,6 @@ const Feed = () => {
         </button>
       </div>
 
-      {/* Feed */}
       <div className="px-4 space-y-4 pb-4">
         {content.length === 0 && (
           <div className="text-center py-12">

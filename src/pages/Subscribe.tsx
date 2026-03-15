@@ -1,11 +1,10 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { BeltBadge } from '@/components/BeltBadge';
-import { ArrowLeft, Check, CreditCard, QrCode, Loader2 } from 'lucide-react';
+import { ArrowLeft, Check } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
 import type { BeltRank } from '@/data/mockData';
 
 const Subscribe = () => {
@@ -13,10 +12,8 @@ const Subscribe = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'quarterly' | 'annual'>('quarterly');
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'pix'>('card');
   const [athlete, setAthlete] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [subscribing, setSubscribing] = useState(false);
 
   useEffect(() => {
     const fetchAthlete = async () => {
@@ -30,61 +27,6 @@ const Subscribe = () => {
     };
     fetchAthlete();
   }, [username]);
-
-  const handleSubscribe = async () => {
-    if (!user) {
-      toast.error('Você precisa estar logado para assinar.');
-      navigate('/auth');
-      return;
-    }
-    if (!athlete) return;
-
-    setSubscribing(true);
-    try {
-      // Check if already subscribed
-      const { data: existing } = await supabase
-        .from('subscriptions')
-        .select('id')
-        .eq('subscriber_id', user.id)
-        .eq('athlete_id', athlete.id)
-        .eq('status', 'active')
-        .maybeSingle();
-
-      if (existing) {
-        toast.info('Você já é assinante deste atleta!');
-        navigate(`/athlete/${athlete.username}`);
-        return;
-      }
-
-      if (paymentMethod === 'card') {
-        // Stripe checkout
-        const { data, error } = await supabase.functions.invoke('create-checkout', {
-          body: { athleteId: athlete.id, plan: selectedPlan },
-        });
-
-        if (error) throw error;
-        if (data?.url) {
-          window.open(data.url, '_blank');
-        }
-      } else {
-        // PIX - create subscription directly (simulated for now)
-        const { error } = await supabase.from('subscriptions').insert({
-          subscriber_id: user.id,
-          athlete_id: athlete.id,
-          plan: selectedPlan,
-          status: 'active',
-        });
-
-        if (error) throw error;
-        toast.success('Assinatura via PIX realizada! 🎉');
-        navigate(`/athlete/${athlete.username}`);
-      }
-    } catch (err: any) {
-      toast.error('Erro ao realizar assinatura: ' + err.message);
-    } finally {
-      setSubscribing(false);
-    }
-  };
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Carregando...</p></div>;
   if (!athlete) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Atleta não encontrado</p></div>;
@@ -147,49 +89,20 @@ const Subscribe = () => {
           ))}
         </div>
 
-        <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Método de Pagamento</h2>
-        <div className="flex gap-2 mb-6">
-          <button
-            onClick={() => setPaymentMethod('card')}
-            className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border text-sm font-semibold transition-colors ${
-              paymentMethod === 'card' ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card text-muted-foreground'
-            }`}
-          >
-            <CreditCard size={16} /> Cartão
-          </button>
-          <button
-            onClick={() => setPaymentMethod('pix')}
-            className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border text-sm font-semibold transition-colors ${
-              paymentMethod === 'pix' ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card text-muted-foreground'
-            }`}
-          >
-            <QrCode size={16} /> PIX
-          </button>
-        </div>
-
         <div className="bg-card border border-border rounded-lg p-4 mb-6 shadow-card">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Plano {currentPlan.label}</span>
             <span className="font-bold text-foreground tabular-nums">R${currentPlan.price}</span>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-2">Pagamento seguro · Cancele quando quiser</p>
         </div>
 
         <button
-          onClick={handleSubscribe}
-          disabled={subscribing}
-          className="w-full bg-primary text-primary-foreground font-bold text-sm py-3.5 rounded-md active:scale-[0.98] transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+          disabled
+          className="w-full bg-muted text-muted-foreground font-bold text-sm py-3.5 rounded-md cursor-not-allowed opacity-70"
         >
-          {subscribing ? (
-            <>
-              <Loader2 size={16} className="animate-spin" />
-              Processando...
-            </>
-          ) : (
-            'Assinar e Começar a Treinar'
-          )}
+          Pagamentos em breve — use o link de convite gratuito do atleta
         </button>
-        <p className="text-center text-[10px] text-muted-foreground mt-3">Cancele quando quiser · Acesso instantâneo</p>
+        <p className="text-center text-[10px] text-muted-foreground mt-3">Pagamento via Stripe será habilitado em breve</p>
       </div>
     </div>
   );

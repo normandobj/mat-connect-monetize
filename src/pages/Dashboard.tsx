@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const Dashboard = () => {
   const [showPlanDropdown, setShowPlanDropdown] = useState(false);
   const [contentCount, setContentCount] = useState(0);
   const [subCount, setSubCount] = useState(0);
+  const [revenue, setRevenue] = useState(0);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -24,14 +26,35 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (athleteProfile) {
-      supabase.from('content').select('id', { count: 'exact', head: true })
-        .eq('athlete_id', athleteProfile.id)
-        .then(({ count }) => setContentCount(count || 0));
-      supabase.from('subscriptions').select('id', { count: 'exact', head: true })
-        .eq('athlete_id', athleteProfile.id).eq('status', 'active')
-        .then(({ count }) => setSubCount(count || 0));
+      fetchStats();
     }
   }, [athleteProfile]);
+
+  const fetchStats = async () => {
+    if (!athleteProfile) return;
+    try {
+      const { count: cc, error: ccErr } = await supabase.from('content').select('id', { count: 'exact', head: true })
+        .eq('athlete_id', athleteProfile.id);
+      if (ccErr) throw ccErr;
+      setContentCount(cc || 0);
+
+      const { data: subs, error: subsErr } = await supabase.from('subscriptions').select('plan')
+        .eq('athlete_id', athleteProfile.id).eq('status', 'active');
+      if (subsErr) throw subsErr;
+      setSubCount(subs?.length || 0);
+
+      // Calculate revenue from active subscriptions
+      let totalRevenue = 0;
+      (subs || []).forEach((sub: any) => {
+        if (sub.plan === 'monthly') totalRevenue += athleteProfile.monthly_price;
+        else if (sub.plan === 'quarterly') totalRevenue += athleteProfile.quarterly_price;
+        else if (sub.plan === 'annual') totalRevenue += athleteProfile.annual_price;
+      });
+      setRevenue(totalRevenue);
+    } catch (err: any) {
+      toast.error('Erro ao carregar dados: ' + err.message);
+    }
+  };
 
   if (loading || !athleteProfile) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground text-sm">Carregando dashboard...</p></div>;
 
@@ -61,13 +84,13 @@ const Dashboard = () => {
 
   const stats = [
     { icon: Users, label: 'Assinantes', value: String(subCount), color: 'text-primary' },
-    { icon: DollarSign, label: 'Receita', value: 'R$0', color: 'text-green-400' },
+    { icon: DollarSign, label: 'Receita', value: `R$${revenue}`, color: 'text-green-400' },
     { icon: FileText, label: 'Conteudos', value: String(contentCount), color: 'text-primary' },
     { icon: Flame, label: 'Sequencia', value: '0d', color: 'text-orange-400' },
   ];
 
   const months = ['Out', 'Nov', 'Dez', 'Jan', 'Fev', 'Mar'];
-  const revenues = [0, 0, 0, 0, 0, 0];
+  const revenues = [0, 0, 0, 0, 0, revenue];
   const maxRev = Math.max(...revenues, 1);
 
   return (
@@ -185,8 +208,8 @@ const Dashboard = () => {
 
         <div className="bg-card border border-border rounded-lg p-4 mt-6 mb-4 shadow-card">
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Proximo Pagamento</h2>
-          <p className="text-xl font-black text-foreground tabular-nums">R$0</p>
-          <p className="text-xs text-muted-foreground mt-1">Nenhum pagamento previsto</p>
+          <p className="text-xl font-black text-foreground tabular-nums">R${revenue}</p>
+          <p className="text-xs text-muted-foreground mt-1">{revenue > 0 ? 'Baseado em assinaturas ativas' : 'Nenhum pagamento previsto'}</p>
         </div>
       </div>
     </AppShell>

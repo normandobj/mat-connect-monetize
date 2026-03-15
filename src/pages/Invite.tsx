@@ -1,8 +1,10 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { mockAthletes } from '@/data/mockData';
 import { BeltBadge } from '@/components/BeltBadge';
 import { Check, Gift, Clock, CreditCard } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import type { BeltRank } from '@/data/mockData';
 
 const planLabels: Record<string, { title: string; subtitle: string; badge: string; badgeColor: string; icon: React.ElementType }> = {
   free:      { title: 'Acesso Gratuito', subtitle: 'Voce foi convidado para acessar todo o conteudo sem pagar nada.', badge: 'Convite Especial', badgeColor: 'bg-primary/20 text-primary', icon: Gift },
@@ -15,16 +17,34 @@ const planLabels: Record<string, { title: string; subtitle: string; badge: strin
 const Invite = () => {
   const { username, plan } = useParams();
   const navigate = useNavigate();
-  const athlete = mockAthletes.find((a) => a.username === username) || mockAthletes[0];
+  const [athlete, setAthlete] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAthlete = async () => {
+      const { data } = await supabase
+        .from('athlete_profiles')
+        .select('*')
+        .eq('username', username)
+        .maybeSingle();
+      setAthlete(data);
+      setLoading(false);
+    };
+    fetchAthlete();
+  }, [username]);
+
+  if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Carregando...</p></div>;
+  if (!athlete) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Atleta não encontrado</p></div>;
+
   const planKey = plan || 'free';
   const planInfo = planLabels[planKey] || planLabels['free'];
   const PlanIcon = planInfo.icon;
 
   const getPrice = () => {
     if (planKey === 'free' || planKey === 'trial7') return null;
-    if (planKey === 'monthly') return athlete.monthlyPrice;
-    if (planKey === 'quarterly') return athlete.quarterlyPrice;
-    if (planKey === 'annual') return athlete.annualPrice;
+    if (planKey === 'monthly') return athlete.monthly_price;
+    if (planKey === 'quarterly') return athlete.quarterly_price;
+    if (planKey === 'annual') return athlete.annual_price;
     return null;
   };
 
@@ -49,14 +69,18 @@ const Invite = () => {
           <p className="text-sm text-muted-foreground leading-relaxed mb-6">{planInfo.subtitle}</p>
 
           <div className="flex items-center gap-4 p-4 bg-card border border-border rounded-xl mb-6">
-            <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center text-2xl font-black text-primary/40 flex-shrink-0">
-              {athlete.name.charAt(0)}
+            <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center text-2xl font-black text-primary/40 flex-shrink-0 overflow-hidden">
+              {athlete.photo_url ? (
+                <img src={athlete.photo_url} alt={athlete.name} className="w-full h-full object-cover" />
+              ) : (
+                athlete.name.charAt(0)
+              )}
             </div>
             <div>
               <h2 className="text-base font-bold text-foreground">{athlete.name}</h2>
               <div className="flex items-center gap-2 mt-1">
-                <BeltBadge belt={athlete.belt} size="sm" />
-                <span className="text-xs text-muted-foreground">{athlete.countryFlag} {athlete.city}</span>
+                <BeltBadge belt={athlete.belt as BeltRank} size="sm" />
+                <span className="text-xs text-muted-foreground">{athlete.country_flag} {athlete.city}</span>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">{athlete.academy}</p>
             </div>

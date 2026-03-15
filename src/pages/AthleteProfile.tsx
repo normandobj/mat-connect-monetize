@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import type { ContentItem, BeltRank } from '@/data/mockData';
 
 const AthleteProfile = () => {
@@ -28,68 +29,75 @@ const AthleteProfile = () => {
 
   const fetchAthlete = async () => {
     setLoading(true);
-    const { data: athleteData } = await supabase
-      .from('athlete_profiles')
-      .select('*')
-      .eq('username', username)
-      .maybeSingle();
+    try {
+      const { data: athleteData, error } = await supabase
+        .from('athlete_profiles')
+        .select('*')
+        .eq('username', username)
+        .maybeSingle();
 
-    if (!athleteData) {
+      if (error) throw error;
+
+      if (!athleteData) {
+        setLoading(false);
+        return;
+      }
+
+      setAthlete(athleteData);
+
+      const { count: subs, error: subsErr } = await supabase.from('subscriptions').select('id', { count: 'exact', head: true }).eq('athlete_id', athleteData.id).eq('status', 'active');
+      if (subsErr) throw subsErr;
+      setSubCount(subs || 0);
+
+      const { count: cc, error: ccErr } = await supabase.from('content').select('id', { count: 'exact', head: true }).eq('athlete_id', athleteData.id);
+      if (ccErr) throw ccErr;
+      setContentCount(cc || 0);
+
+      let subscribed = false;
+      if (user) {
+        const { data: sub } = await supabase.from('subscriptions').select('id').eq('subscriber_id', user.id).eq('athlete_id', athleteData.id).eq('status', 'active').maybeSingle();
+        subscribed = !!sub;
+        setIsSubscribed(subscribed);
+      }
+
+      const isOwner = user?.id === athleteData.user_id;
+
+      const { data: contentData, error: contentErr } = await supabase
+        .from('content')
+        .select('*')
+        .eq('athlete_id', athleteData.id)
+        .order('created_at', { ascending: false });
+
+      if (contentErr) throw contentErr;
+
+      if (contentData) {
+        const mapped: ContentItem[] = contentData.map((item: any) => ({
+          id: item.id,
+          type: item.type as any,
+          title_pt: item.title_pt,
+          title_en: item.title_en || item.title_pt,
+          description_pt: item.description_pt || '',
+          description_en: item.description_en || item.description_pt || '',
+          planText_pt: item.plan_text_pt,
+          planText_en: item.plan_text_en,
+          thumbnail: item.thumbnail_url || '',
+          videoUrl: item.video_url || undefined,
+          duration: item.duration,
+          athleteId: item.athlete_id,
+          athleteName: athleteData.name,
+          athleteBelt: athleteData.belt as BeltRank,
+          athletePhoto: athleteData.photo_url || '',
+          createdAt: item.created_at,
+          locked: item.visibility === 'subscribers' && !subscribed && !isOwner,
+          liveDate: item.live_date,
+        }));
+        setContent(mapped);
+      }
+    } catch (err: any) {
+      toast.error('Erro ao carregar perfil: ' + err.message);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setAthlete(athleteData);
-
-    // Counts
-    const { count: subs } = await supabase.from('subscriptions').select('id', { count: 'exact', head: true }).eq('athlete_id', athleteData.id).eq('status', 'active');
-    setSubCount(subs || 0);
-
-    const { count: cc } = await supabase.from('content').select('id', { count: 'exact', head: true }).eq('athlete_id', athleteData.id);
-    setContentCount(cc || 0);
-
-    // Check subscription
-    let subscribed = false;
-    if (user) {
-      const { data: sub } = await supabase.from('subscriptions').select('id').eq('subscriber_id', user.id).eq('athlete_id', athleteData.id).eq('status', 'active').maybeSingle();
-      subscribed = !!sub;
-      setIsSubscribed(subscribed);
-    }
-
-    // Check if current user is the athlete owner
-    const isOwner = user?.id === athleteData.user_id;
-
-    // Fetch content
-    const { data: contentData } = await supabase
-      .from('content')
-      .select('*')
-      .eq('athlete_id', athleteData.id)
-      .order('created_at', { ascending: false });
-
-    if (contentData) {
-      const mapped: ContentItem[] = contentData.map((item: any) => ({
-        id: item.id,
-        type: item.type as any,
-        title_pt: item.title_pt,
-        title_en: item.title_en || item.title_pt,
-        description_pt: item.description_pt || '',
-        description_en: item.description_en || item.description_pt || '',
-        planText_pt: item.plan_text_pt,
-        planText_en: item.plan_text_en,
-        thumbnail: item.thumbnail_url || '',
-        videoUrl: item.video_url || undefined,
-        duration: item.duration,
-        athleteId: item.athlete_id,
-        athleteName: athleteData.name,
-        athleteBelt: athleteData.belt as BeltRank,
-        athletePhoto: athleteData.photo_url || '',
-        createdAt: item.created_at,
-        locked: item.visibility === 'subscribers' && !subscribed && !isOwner,
-        liveDate: item.live_date,
-      }));
-      setContent(mapped);
-    }
-    setLoading(false);
   };
 
   const isEn = lang === 'en';

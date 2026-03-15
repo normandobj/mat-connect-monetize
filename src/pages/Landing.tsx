@@ -7,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 const content = {
   en: {
@@ -76,12 +77,15 @@ const Landing = () => {
   const [dbAthletes, setDbAthletes] = useState<any[]>([]);
 
   useEffect(() => {
-    supabase.from('athlete_profiles').select('*').limit(5).then(({ data }) => {
+    supabase.from('athlete_profiles').select('*').limit(5).then(({ data, error }) => {
+      if (error) {
+        toast.error('Erro ao carregar atletas: ' + error.message);
+        return;
+      }
       if (data && data.length > 0) setDbAthletes(data);
     });
   }, []);
 
-  // Map DB athletes to the AthleteCard format
   const displayAthletes = dbAthletes.length > 0
     ? dbAthletes.map(a => ({
         id: a.id,

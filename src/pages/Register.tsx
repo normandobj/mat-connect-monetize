@@ -22,7 +22,6 @@ const Register = () => {
   const [monthlyPrice, setMonthlyPrice] = useState(29);
   const [loading, setLoading] = useState(false);
 
-  // Redirect if already registered
   useEffect(() => {
     if (athleteProfile) {
       navigate('/dashboard', { replace: true });
@@ -35,7 +34,6 @@ const Register = () => {
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('Brazil');
   const [bioPt, setBioPt] = useState('');
-  // Photo state
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
   const [coverPhoto, setCoverPhoto] = useState<File | null>(null);
@@ -61,6 +59,26 @@ const Register = () => {
     return publicUrl;
   };
 
+  const validateUsername = async (): Promise<boolean> => {
+    const cleanUsername = username.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const { data } = await supabase
+      .from('athlete_profiles')
+      .select('id')
+      .eq('username', cleanUsername)
+      .maybeSingle();
+    if (data) {
+      toast.error('Este nome de usuário já está em uso');
+      return false;
+    }
+    return true;
+  };
+
+  const handleGoToStep2 = async () => {
+    if (!name || !username) return;
+    const isValid = await validateUsername();
+    if (isValid) setStep(2);
+  };
+
   const handleSubmit = async () => {
     if (!user) {
       toast.error('Você precisa estar logado para se cadastrar como atleta.');
@@ -68,7 +86,6 @@ const Register = () => {
       return;
     }
 
-    // Check if profile already exists
     const { data: existing } = await supabase
       .from('athlete_profiles')
       .select('id')
@@ -158,7 +175,7 @@ const Register = () => {
               <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Username</label>
               <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="lucasbarbosa" className="mt-1 w-full bg-card border border-border rounded-md px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
             </div>
-            <button onClick={() => setStep(2)} disabled={!name || !username} className="mt-auto bg-primary text-primary-foreground font-bold text-sm py-3 rounded-md disabled:opacity-40">Continue</button>
+            <button onClick={handleGoToStep2} disabled={!name || !username} className="mt-auto bg-primary text-primary-foreground font-bold text-sm py-3 rounded-md disabled:opacity-40">Continue</button>
           </div>
         )}
 
@@ -195,8 +212,6 @@ const Register = () => {
         {step === 3 && (
           <div className="flex-1 flex flex-col gap-4">
             <h2 className="text-sm font-bold text-foreground">Profile & Bio</h2>
-
-            {/* Cover photo upload */}
             <div>
               <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Cover Photo</label>
               <input type="file" ref={coverInputRef} accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleFileSelect(e.target.files[0], 'cover'); }} />
@@ -217,8 +232,6 @@ const Register = () => {
                 )}
               </button>
             </div>
-
-            {/* Profile photo upload */}
             <div>
               <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Profile Photo</label>
               <input type="file" ref={profileInputRef} accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleFileSelect(e.target.files[0], 'profile'); }} />
@@ -239,7 +252,6 @@ const Register = () => {
                 )}
               </button>
             </div>
-
             <div>
               <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Bio (Portuguese)</label>
               <textarea value={bioPt} onChange={(e) => setBioPt(e.target.value)} placeholder="Conte um pouco sobre você..." rows={3} className="mt-1 w-full bg-card border border-border rounded-md px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none" />
