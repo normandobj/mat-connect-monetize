@@ -61,6 +61,20 @@ const Register = () => {
       return;
     }
 
+    // Check if profile already exists
+    const { data: existing } = await supabase
+      .from('athlete_profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    
+    if (existing) {
+      toast.success('Você já tem um perfil de atleta!');
+      await refreshProfile();
+      navigate('/dashboard');
+      return;
+    }
+
     setLoading(true);
     try {
       let photoUrl = null;
