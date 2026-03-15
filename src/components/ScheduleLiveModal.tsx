@@ -27,8 +27,9 @@ export function ScheduleLiveModal({ onClose, onSuccess }: Props) {
     }
 
     const scheduledAt = new Date(`${date}T${time}:00`);
-    if (scheduledAt <= new Date()) {
-      toast.error(isEn ? 'Choose a future date' : 'Escolha uma data futura');
+    const minTime = new Date(Date.now() + 15 * 60 * 1000);
+    if (scheduledAt <= minTime) {
+      toast.error(isEn ? 'Choose a time at least 15 minutes from now' : 'Escolha um horário com pelo menos 15 minutos de antecedência');
       return;
     }
 
