@@ -1,4 +1,4 @@
-import { Home, Compass, PlusCircle, Bell, User } from 'lucide-react';
+import { Home, Compass, PlusCircle, Bell, MessageSquare, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
@@ -9,8 +9,9 @@ const navItems = [
   { icon: Home, label: 'Home', path: '/feed' },
   { icon: Compass, label: 'Explore', path: '/explore' },
   { icon: PlusCircle, label: 'Post', path: '/upload' },
+  { icon: MessageSquare, label: 'Chat', path: '/messages', badgeKey: 'messages' },
   { icon: Bell, label: 'Alertas', path: '/notifications', badgeKey: 'notifications' },
-  { icon: User, label: 'Profile', path: '/dashboard' },
+  { icon: User, label: 'Perfil', path: '/dashboard' },
 ];
 
 export function BottomNav() {
