@@ -12,6 +12,7 @@ import Explore from "./pages/Explore";
 import UploadPage from "./pages/Upload";
 import Subscribe from "./pages/Subscribe";
 import Register from "./pages/Register";
+import Invite from "./pages/Invite";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/subscribe/:username" element={<Subscribe />} />
           <Route path="/register/athlete" element={<Register />} />
           <Route path="/notifications" element={<Feed />} />
+          <Route path="/invite/:username/:plan" element={<Invite />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
