@@ -125,6 +125,7 @@ const Feed = () => {
             <button onClick={() => setLang('pt')} className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${lang === 'pt' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}>PT</button>
             <button onClick={() => setLang('en')} className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${lang === 'en' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}>EN</button>
           </div>
+          <NotificationBell />
           <button onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
             <LogOut size={18} />
           </button>
