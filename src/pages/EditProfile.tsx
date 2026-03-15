@@ -289,6 +289,12 @@ const EditProfile = () => {
           </div>
         </div>
 
+        {/* Google Meet Connection */}
+        <div className="mb-6">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">{isEn ? 'Connections' : 'Conexões'}</h2>
+          <GoogleMeetConnection />
+        </div>
+
         <button onClick={handleSave} disabled={saving}
           className="w-full bg-primary text-primary-foreground py-3.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform disabled:opacity-50 mb-6">
           <Save size={16} />
