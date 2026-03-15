@@ -35,7 +35,7 @@ const UploadPage = () => {
     'Costas': 'Back', 'costas': 'back',
   };
   const mockTranslate = (text: string) =>
-    Object.entries(bjjTerms).reduce((t, [pt, en]) => t.replaceAll(pt, en), text);
+    Object.entries(bjjTerms).reduce((t, [pt, en]) => t.split(pt).join(en), text);
   const translatedTitle = title ? mockTranslate(title) : '';
   const translatedDesc = description ? mockTranslate(description) : '';
 
