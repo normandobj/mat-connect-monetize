@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      athlete_google_tokens: {
+        Row: {
+          access_token: string
+          athlete_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          refresh_token: string
+        }
+        Insert: {
+          access_token: string
+          athlete_id: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          refresh_token: string
+        }
+        Update: {
+          access_token?: string
+          athlete_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          refresh_token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "athlete_google_tokens_athlete_id_fkey"
+            columns: ["athlete_id"]
+            isOneToOne: true
+            referencedRelation: "athlete_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       athlete_profiles: {
         Row: {
           academy: string | null
@@ -91,9 +126,13 @@ export type Database = {
           description_pt: string | null
           duration: string | null
           id: string
+          is_live_now: boolean
           live_date: string | null
+          live_status: string | null
+          meet_url: string | null
           plan_text_en: string | null
           plan_text_pt: string | null
+          scheduled_at: string | null
           thumbnail_url: string | null
           title_en: string | null
           title_pt: string
@@ -108,9 +147,13 @@ export type Database = {
           description_pt?: string | null
           duration?: string | null
           id?: string
+          is_live_now?: boolean
           live_date?: string | null
+          live_status?: string | null
+          meet_url?: string | null
           plan_text_en?: string | null
           plan_text_pt?: string | null
+          scheduled_at?: string | null
           thumbnail_url?: string | null
           title_en?: string | null
           title_pt: string
@@ -125,9 +168,13 @@ export type Database = {
           description_pt?: string | null
           duration?: string | null
           id?: string
+          is_live_now?: boolean
           live_date?: string | null
+          live_status?: string | null
+          meet_url?: string | null
           plan_text_en?: string | null
           plan_text_pt?: string | null
+          scheduled_at?: string | null
           thumbnail_url?: string | null
           title_en?: string | null
           title_pt?: string
