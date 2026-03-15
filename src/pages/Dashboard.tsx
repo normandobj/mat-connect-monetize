@@ -150,14 +150,14 @@ const Dashboard = () => {
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Acoes Rapidas</h2>
           <div className="grid grid-cols-3 gap-2">
             {[
-              { icon: Plus, label: 'Postar Drill', href: '/upload' },
-              { icon: Dumbbell, label: 'Planilha', href: '/upload' },
-              { icon: MessageSquare, label: 'Chat', href: '/messages' },
-            ].map((action) => (
-              <button key={action.label} onClick={() => navigate(action.href)}
+              { icon: Plus, label: 'Postar Conteúdo', action: () => navigate('/upload') },
+              { icon: MessageSquare, label: 'Chat', action: () => navigate('/messages') },
+              { icon: Radio, label: 'Live', action: () => setShowLiveOptions(true) },
+            ].map((item) => (
+              <button key={item.label} onClick={item.action}
                 className="bg-card border border-border rounded-lg p-3 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform">
-                <action.icon size={20} className="text-primary" />
-                <span className="text-[10px] font-semibold text-foreground">{action.label}</span>
+                <item.icon size={20} className="text-primary" />
+                <span className="text-[10px] font-semibold text-foreground">{item.label}</span>
               </button>
             ))}
           </div>
