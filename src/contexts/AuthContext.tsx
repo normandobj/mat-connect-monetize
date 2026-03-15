@@ -9,6 +9,7 @@ interface AuthContextType {
   athleteProfile: any | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -18,6 +19,7 @@ const AuthContext = createContext<AuthContextType>({
   athleteProfile: null,
   loading: true,
   signOut: async () => {},
+  refreshProfile: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -77,8 +79,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAthleteProfile(null);
   };
 
+  const refreshProfile = async () => {
+    if (user) {
+      await fetchUserData(user.id);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, userRole, athleteProfile, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, userRole, athleteProfile, loading, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
