@@ -1,6 +1,7 @@
 import { AppShell } from '@/components/AppShell';
 import { ContentCard } from '@/components/ContentCard';
-import { Bell, ChevronRight, LogOut, Loader2 } from 'lucide-react';
+import { NotificationBell } from '@/components/NotificationBell';
+import { ChevronRight, LogOut, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
