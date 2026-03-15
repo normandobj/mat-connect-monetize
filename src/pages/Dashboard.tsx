@@ -17,6 +17,7 @@ const Dashboard = () => {
   const [subCount, setSubCount] = useState(0);
   const [revenue, setRevenue] = useState(0);
   const [isProfileLoading, setIsProfileLoading] = useState(true);
+  const [showLiveOptions, setShowLiveOptions] = useState(false);
 
   // On mount: if no athleteProfile yet, re-fetch from DB before deciding
   useEffect(() => {
