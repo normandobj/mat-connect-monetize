@@ -9,6 +9,7 @@ interface AuthContextType {
   athleteProfile: any | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
