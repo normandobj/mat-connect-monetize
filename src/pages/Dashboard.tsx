@@ -1,23 +1,46 @@
 import { AppShell } from '@/components/AppShell';
-import { Users, DollarSign, FileText, Flame, Plus, Radio, Dumbbell, Link, Copy, Check, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { Users, DollarSign, FileText, Flame, Plus, Radio, Dumbbell, Link, Copy, Check, ChevronDown, LogOut } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { mockAthletes } from '@/data/mockData';
-
-const athlete = mockAthletes[0];
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { user, athleteProfile, signOut, loading } = useAuth();
   const [copiedLink, setCopiedLink] = useState(false);
   const [selectedInvitePlan, setSelectedInvitePlan] = useState('free');
   const [showPlanDropdown, setShowPlanDropdown] = useState(false);
+  const [contentCount, setContentCount] = useState(0);
+  const [subCount, setSubCount] = useState(0);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading]);
+
+  useEffect(() => {
+    if (athleteProfile) {
+      supabase.from('content').select('id', { count: 'exact', head: true })
+        .eq('athlete_id', athleteProfile.id)
+        .then(({ count }) => setContentCount(count || 0));
+      supabase.from('subscriptions').select('id', { count: 'exact', head: true })
+        .eq('athlete_id', athleteProfile.id).eq('status', 'active')
+        .then(({ count }) => setSubCount(count || 0));
+    }
+  }, [athleteProfile]);
+
+  if (loading || !athleteProfile) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Carregando...</p></div>;
+
+  const athlete = athleteProfile;
 
   const invitePlans = [
     { key: 'free', label: 'Gratuito', sublabel: 'Acesso completo sem cobrar', badge: 'Para o teste' },
     { key: 'trial7', label: '7 dias gratis', sublabel: 'Cadastra agora, paga no 7 dia', badge: 'Recomendado' },
-    { key: 'monthly', label: 'Mensal — R$' + athlete.monthlyPrice, sublabel: 'Cobranca imediata mensal', badge: null },
-    { key: 'quarterly', label: 'Trimestral — R$' + athlete.quarterlyPrice, sublabel: 'Cobranca imediata trimestral', badge: null },
-    { key: 'annual', label: 'Anual — R$' + athlete.annualPrice, sublabel: 'Melhor valor anual', badge: null },
+    { key: 'monthly', label: 'Mensal — R$' + athlete.monthly_price, sublabel: 'Cobranca imediata mensal', badge: null },
+    { key: 'quarterly', label: 'Trimestral — R$' + athlete.quarterly_price, sublabel: 'Cobranca imediata trimestral', badge: null },
+    { key: 'annual', label: 'Anual — R$' + athlete.annual_price, sublabel: 'Melhor valor anual', badge: null },
   ];
 
   const selectedPlan = invitePlans.find((p) => p.key === selectedInvitePlan);
@@ -29,28 +52,31 @@ const Dashboard = () => {
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  const stats = [
-    { icon: Users, label: 'Assinantes', value: '127', color: 'text-primary' },
-    { icon: DollarSign, label: 'Receita', value: 'R$4.953', color: 'text-green-400' },
-    { icon: FileText, label: 'Conteudos', value: '84', color: 'text-primary' },
-    { icon: Flame, label: 'Sequencia', value: '12d', color: 'text-orange-400' },
-  ];
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/');
+  };
 
-  const recentSubs = [
-    { name: 'James Wilson', plan: 'Trimestral', date: '10 Mar', free: false },
-    { name: 'Maria Garcia', plan: 'Mensal', date: '9 Mar', free: false },
-    { name: 'Tom Anderson', plan: 'Anual', date: '7 Mar', free: false },
-    { name: 'Yuki Tanaka', plan: 'Gratis', date: '5 Mar', free: true },
+  const stats = [
+    { icon: Users, label: 'Assinantes', value: String(subCount), color: 'text-primary' },
+    { icon: DollarSign, label: 'Receita', value: 'R$0', color: 'text-green-400' },
+    { icon: FileText, label: 'Conteudos', value: String(contentCount), color: 'text-primary' },
+    { icon: Flame, label: 'Sequencia', value: '0d', color: 'text-orange-400' },
   ];
 
   const months = ['Out', 'Nov', 'Dez', 'Jan', 'Fev', 'Mar'];
-  const revenues = [2800, 3200, 3800, 4100, 4600, 4953];
-  const maxRev = Math.max(...revenues);
+  const revenues = [0, 0, 0, 0, 0, 0];
+  const maxRev = Math.max(...revenues, 1);
 
   return (
     <AppShell>
       <div className="px-4 py-6">
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">Ola, Lucas 👊</h1>
+        <div className="flex items-center justify-between mb-1">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Ola, {athlete.name.split(' ')[0]} 👊</h1>
+          <button onClick={handleLogout} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+            <LogOut size={14} /> Sair
+          </button>
+        </div>
         <p className="text-sm text-muted-foreground mt-1">Visao geral do seu perfil.</p>
 
         <div className="grid grid-cols-2 gap-2 mt-6">
@@ -100,9 +126,8 @@ const Dashboard = () => {
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Convidar Assinantes</h2>
           <div className="bg-card border border-border rounded-lg p-4 shadow-card">
             <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
-              Gere um link e escolha como seus convidados vao acessar seu conteudo. Ideal para stories ou grupo da academia.
+              Gere um link e escolha como seus convidados vao acessar seu conteudo.
             </p>
-
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Tipo de acesso</p>
             <div className="relative mb-4">
               <button onClick={() => setShowPlanDropdown(!showPlanDropdown)}
@@ -118,7 +143,6 @@ const Dashboard = () => {
                   <ChevronDown size={14} className={'text-muted-foreground transition-transform ' + (showPlanDropdown ? 'rotate-180' : '')} />
                 </div>
               </button>
-
               {showPlanDropdown && (
                 <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-card border border-border rounded-lg overflow-hidden shadow-lg">
                   {invitePlans.map((plan) => (
@@ -140,13 +164,11 @@ const Dashboard = () => {
                 </div>
               )}
             </div>
-
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Seu link</p>
             <div className="flex items-center gap-2 bg-background border border-border rounded-lg px-3 py-2.5 mb-3">
               <Link size={14} className="text-primary flex-shrink-0" />
               <p className="text-xs text-muted-foreground flex-1 truncate">{inviteLink}</p>
             </div>
-
             <button onClick={handleCopy}
               className={'w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-sm transition-all active:scale-[0.98] ' + (copiedLink ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-primary text-primary-foreground')}>
               {copiedLink ? <><Check size={16} /> Link copiado!</> : <><Copy size={16} /> Copiar link</>}
@@ -154,34 +176,10 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="mt-6">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Assinantes Recentes</h2>
-          <div className="bg-card border border-border rounded-lg divide-y divide-border shadow-card">
-            {recentSubs.map((sub) => (
-              <div key={sub.name} className="flex items-center gap-3 p-3">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-                  {sub.name.charAt(0)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{sub.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{sub.plan} · {sub.date}</p>
-                </div>
-                {sub.free && (
-                  <span className="text-[9px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">Gratis</span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
         <div className="bg-card border border-border rounded-lg p-4 mt-6 mb-4 shadow-card">
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Proximo Pagamento</h2>
-          <p className="text-xl font-black text-foreground tabular-nums">R$4.953</p>
-          <p className="text-xs text-muted-foreground mt-1">Previsto para 30 de marco de 2026</p>
-          <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
-            <div className="h-full bg-primary rounded-full" style={{ width: '72%' }} />
-          </div>
-          <p className="text-[10px] text-muted-foreground mt-1">72% do periodo concluido</p>
+          <p className="text-xl font-black text-foreground tabular-nums">R$0</p>
+          <p className="text-xs text-muted-foreground mt-1">Nenhum pagamento previsto</p>
         </div>
       </div>
     </AppShell>
