@@ -1,5 +1,5 @@
 import { AppShell } from '@/components/AppShell';
-import { Users, DollarSign, FileText, Flame, Plus, Radio, Dumbbell, Link, Copy, Check, ChevronDown, LogOut } from 'lucide-react';
+import { Users, DollarSign, FileText, Flame, Plus, Radio, Dumbbell, Link, Copy, Check, ChevronDown, LogOut, Pencil } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
