@@ -23,6 +23,7 @@ const Explore = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [athletes, setAthletes] = useState<Athlete[]>([]);
+  const [loadingAthletes, setLoadingAthletes] = useState(true);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -31,35 +32,41 @@ const Explore = () => {
   }, [user, authLoading]);
 
   useEffect(() => {
-    supabase.from('athlete_profiles').select('*').then(({ data, error }) => {
-      if (error) {
-        toast.error('Erro ao carregar atletas: ' + error.message);
-        return;
-      }
-      if (data && data.length > 0) {
-        setAthletes(data.map(a => ({
-          id: a.id,
-          username: a.username,
-          name: a.name,
-          belt: a.belt as BeltRank,
-          academy: a.academy || '',
-          city: a.city || '',
-          country: a.country || '',
-          countryFlag: a.country_flag || '🇧🇷',
-          bio_pt: a.bio_pt || '',
-          bio_en: a.bio_en || '',
-          photo: a.photo_url || '',
-          coverPhoto: a.cover_photo_url || '',
-          subscribers: 0,
-          monthlyPrice: a.monthly_price,
-          quarterlyPrice: a.quarterly_price,
-          annualPrice: a.annual_price,
-          contentCount: 0,
-        })));
-      } else {
+    const fetchAthletes = async () => {
+      try {
+        const { data, error } = await supabase.from('athlete_profiles').select('*');
+        if (error) throw error;
+        if (data && data.length > 0) {
+          setAthletes(data.map(a => ({
+            id: a.id,
+            username: a.username,
+            name: a.name,
+            belt: a.belt as BeltRank,
+            academy: a.academy || '',
+            city: a.city || '',
+            country: a.country || '',
+            countryFlag: a.country_flag || '🇧🇷',
+            bio_pt: a.bio_pt || '',
+            bio_en: a.bio_en || '',
+            photo: a.photo_url || '',
+            coverPhoto: a.cover_photo_url || '',
+            subscribers: 0,
+            monthlyPrice: a.monthly_price,
+            quarterlyPrice: a.quarterly_price,
+            annualPrice: a.annual_price,
+            contentCount: 0,
+          })));
+        } else {
+          setAthletes(mockAthletes);
+        }
+      } catch (err: any) {
+        toast.error('Erro ao carregar atletas');
         setAthletes(mockAthletes);
+      } finally {
+        setLoadingAthletes(false);
       }
-    });
+    };
+    fetchAthletes();
   }, []);
 
   const filtered = athletes.filter((a) => {

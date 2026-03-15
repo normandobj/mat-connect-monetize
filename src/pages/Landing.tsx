@@ -75,15 +75,21 @@ const Landing = () => {
   const { user, userRole } = useAuth();
   const t = content[lang];
   const [dbAthletes, setDbAthletes] = useState<any[]>([]);
+  const [loadingAthletes, setLoadingAthletes] = useState(true);
 
   useEffect(() => {
-    supabase.from('athlete_profiles').select('*').limit(5).then(({ data, error }) => {
-      if (error) {
-        toast.error('Erro ao carregar atletas: ' + error.message);
-        return;
+    const fetchAthletes = async () => {
+      try {
+        const { data, error } = await supabase.from('athlete_profiles').select('*').limit(5);
+        if (error) throw error;
+        if (data && data.length > 0) setDbAthletes(data);
+      } catch (err: any) {
+        toast.error(lang === 'pt' ? 'Erro ao carregar atletas' : 'Failed to load athletes');
+      } finally {
+        setLoadingAthletes(false);
       }
-      if (data && data.length > 0) setDbAthletes(data);
-    });
+    };
+    fetchAthletes();
   }, []);
 
   const displayAthletes = dbAthletes.length > 0
