@@ -100,7 +100,10 @@ const AthleteProfile = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-[430px] pb-24">
-        <div className="relative h-44 bg-gradient-to-br from-primary/20 to-secondary">
+        <div className="relative h-44 bg-gradient-to-br from-primary/20 to-secondary overflow-hidden">
+          {athlete.cover_photo_url && (
+            <img src={athlete.cover_photo_url} alt="Cover" className="absolute inset-0 w-full h-full object-cover" />
+          )}
           <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-10 w-8 h-8 rounded-full bg-background/60 backdrop-blur-sm flex items-center justify-center">
             <ArrowLeft size={16} className="text-foreground" />
           </button>
@@ -111,8 +114,12 @@ const AthleteProfile = () => {
         </div>
 
         <div className="px-4 -mt-12 relative z-10">
-          <div className="w-24 h-24 rounded-xl bg-card border-4 border-background flex items-center justify-center text-3xl font-black text-primary/40">
-            {athlete.name.charAt(0)}
+          <div className="w-24 h-24 rounded-xl bg-card border-4 border-background flex items-center justify-center text-3xl font-black text-primary/40 overflow-hidden">
+            {athlete.photo_url ? (
+              <img src={athlete.photo_url} alt={athlete.name} className="w-full h-full object-cover" />
+            ) : (
+              athlete.name.charAt(0)
+            )}
           </div>
           <div className="mt-3">
             <h1 className="text-2xl font-bold text-foreground tracking-tight">{athlete.name}</h1>
