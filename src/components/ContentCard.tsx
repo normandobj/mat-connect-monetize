@@ -7,6 +7,56 @@ import { useLikes } from '@/hooks/useLikes';
 import { useComments } from '@/hooks/useComments';
 import { CommentSection } from './CommentSection';
 
+function LiveCardActions({ item, isEn }: { item: ContentItem; isEn: boolean }) {
+  if (item.liveStatus === 'ended') {
+    return (
+      <p className="mt-2 text-xs text-muted-foreground font-semibold">
+        {isEn ? 'Live ended' : 'Live encerrada'}
+      </p>
+    );
+  }
+
+  if (item.liveStatus === 'live' && !item.locked) {
+    return (
+      <button
+        onClick={() => item.meetUrl && window.open(item.meetUrl, '_blank')}
+        className="mt-2 flex items-center gap-1.5 bg-red-600 text-white text-xs font-semibold px-3 py-1.5 rounded-md active:scale-[0.98] transition-transform"
+      >
+        <ExternalLink size={12} /> {isEn ? 'Join Live' : 'Entrar na Live'}
+      </button>
+    );
+  }
+
+  if (item.liveStatus === 'live' && item.locked) {
+    return (
+      <p className="mt-2 text-xs text-muted-foreground font-semibold">
+        {isEn ? 'Subscribe to join lives' : 'Assine para participar das lives'}
+      </p>
+    );
+  }
+
+  // Scheduled
+  if (item.scheduledAt) {
+    const diff = new Date(item.scheduledAt).getTime() - Date.now();
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const countdown = diff > 0
+      ? (isEn ? `In ${hours}h ${mins}min` : `Em ${hours}h ${mins}min`)
+      : (isEn ? 'Starting soon' : 'Começando em breve');
+
+    return (
+      <div className="mt-2">
+        <p className="text-[10px] text-muted-foreground mb-1">{countdown}</p>
+        <button disabled className="flex items-center gap-1.5 bg-muted text-muted-foreground text-xs font-semibold px-3 py-1.5 rounded-md cursor-not-allowed">
+          <Bell size={12} /> {isEn ? 'Waiting to start' : 'Aguardando início'}
+        </button>
+      </div>
+    );
+  }
+
+  return null;
+}
+
 export function ContentCard({ item }: { item: ContentItem }) {
   const { lang } = useLanguage();
   const title = lang === 'en' ? item.title_en : item.title_pt;
