@@ -27,8 +27,9 @@ export function ScheduleLiveModal({ onClose, onSuccess }: Props) {
     }
 
     const scheduledAt = new Date(`${date}T${time}:00`);
-    if (scheduledAt <= new Date()) {
-      toast.error(isEn ? 'Choose a future date' : 'Escolha uma data futura');
+    const minTime = new Date(Date.now() + 15 * 60 * 1000);
+    if (scheduledAt <= minTime) {
+      toast.error(isEn ? 'Choose a time at least 15 minutes from now' : 'Escolha um horário com pelo menos 15 minutos de antecedência');
       return;
     }
 
@@ -57,10 +58,9 @@ export function ScheduleLiveModal({ onClose, onSuccess }: Props) {
     }
   };
 
-  // Get tomorrow's date as min for date picker
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate());
-  const minDate = tomorrow.toISOString().split('T')[0];
+  // Get today's date as min for date picker
+  const today = new Date();
+  const minDate = today.toISOString().split('T')[0];
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center" onClick={onClose}>

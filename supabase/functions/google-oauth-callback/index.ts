@@ -33,7 +33,18 @@ serve(async (req) => {
     }
 
     const { athleteId, origin } = JSON.parse(atob(state));
-    log("Processing callback", { athleteId });
+    log("Processing callback", { athleteId, origin });
+
+    const ALLOWED_ORIGINS = [
+      "https://mydrill.app",
+      "https://mat-connect-monetize.lovable.app",
+      "http://localhost:5173",
+      "http://localhost:8080",
+    ];
+    if (!origin || !ALLOWED_ORIGINS.includes(origin)) {
+      log("Invalid origin", { origin });
+      return new Response("Invalid redirect origin", { status: 400 });
+    }
 
     const GOOGLE_CLIENT_ID = Deno.env.get("GOOGLE_CLIENT_ID");
     const GOOGLE_CLIENT_SECRET = Deno.env.get("GOOGLE_CLIENT_SECRET");

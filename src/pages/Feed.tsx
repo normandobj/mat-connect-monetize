@@ -90,7 +90,7 @@ const Feed = () => {
             .eq('id', notif.content_id)
             .single();
 
-          const athleteName = (contentData as any)?.athlete_profiles?.name || '';
+          const athleteName = (contentData as any)?.athlete_profiles?.name || 'Atleta';
           const isEn = lang === 'en';
           toast(
             isEn
