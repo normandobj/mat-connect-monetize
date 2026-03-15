@@ -202,16 +202,24 @@ const AthleteProfile = () => {
           </div>
         </section>
 
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-border">
-          <div className="mx-auto max-w-[430px] px-4 py-3">
-            <button
-              onClick={() => navigate(`/subscribe/${athlete.username}`)}
-              className="w-full bg-primary text-primary-foreground font-bold text-sm py-3.5 rounded-md active:scale-[0.98] transition-transform"
-            >
-              {isEn ? `Subscribe from R$${athlete.monthly_price}/month` : `Assinar a partir de R$${athlete.monthly_price}/mês`}
-            </button>
+        {user?.id !== athlete.user_id && (
+          <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-border">
+            <div className="mx-auto max-w-[430px] px-4 py-3">
+              {isSubscribed ? (
+                <div className="w-full bg-muted text-muted-foreground font-bold text-sm py-3.5 rounded-md text-center flex items-center justify-center gap-2">
+                  <Check size={16} /> {isEn ? 'Subscribed' : 'Assinado'}
+                </div>
+              ) : (
+                <button
+                  onClick={() => navigate(`/subscribe/${athlete.username}`)}
+                  className="w-full bg-primary text-primary-foreground font-bold text-sm py-3.5 rounded-md active:scale-[0.98] transition-transform"
+                >
+                  {isEn ? `Subscribe from R$${athlete.monthly_price}/month` : `Assinar a partir de R$${athlete.monthly_price}/mês`}
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
