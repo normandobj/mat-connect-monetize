@@ -210,10 +210,8 @@ export function ContentCard({ item }: { item: ContentItem }) {
           </span>
         )}
 
-        {item.type === 'live' && item.liveDate && (
-          <button className="mt-2 flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-semibold px-3 py-1.5 rounded-md">
-            <Bell size={12} /> {notifyLabel}
-          </button>
+        {item.type === 'live' && (
+          <LiveCardActions item={item} isEn={lang === 'en'} />
         )}
 
         <InteractionBar />
