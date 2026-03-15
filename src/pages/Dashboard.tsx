@@ -186,17 +186,27 @@ const Dashboard = () => {
         <div className="mt-6">
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Acoes Rapidas</h2>
           <div className="grid grid-cols-3 gap-2">
-            {[
-              { icon: Plus, label: 'Postar Conteúdo', action: () => navigate('/upload') },
-              { icon: MessageSquare, label: 'Chat', action: () => navigate('/messages') },
-              { icon: Radio, label: 'Live', action: () => setShowLiveOptions(true) },
-            ].map((item) => (
-              <button key={item.label} onClick={item.action}
-                className="bg-card border border-border rounded-lg p-3 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform">
-                <item.icon size={20} className="text-primary" />
-                <span className="text-[10px] font-semibold text-foreground">{item.label}</span>
-              </button>
-            ))}
+            <button onClick={() => navigate('/upload')}
+              className="bg-card border border-border rounded-lg p-3 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform">
+              <Plus size={20} className="text-primary" />
+              <span className="text-[10px] font-semibold text-foreground">Postar Conteúdo</span>
+            </button>
+            <button onClick={() => navigate('/messages')}
+              className="bg-card border border-border rounded-lg p-3 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform">
+              <MessageSquare size={20} className="text-primary" />
+              <span className="text-[10px] font-semibold text-foreground">Chat</span>
+            </button>
+            <button onClick={() => setShowLiveOptions(true)}
+              className="bg-card border border-border rounded-lg p-3 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform relative">
+              {hasActiveLive && (
+                <span className="absolute top-2 right-2 flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-destructive" />
+                </span>
+              )}
+              <Radio size={20} className="text-primary" />
+              <span className="text-[10px] font-semibold text-foreground">Live</span>
+            </button>
           </div>
           {showLiveOptions && (
             <div className="mt-2 bg-card border border-border rounded-lg overflow-hidden shadow-lg">
