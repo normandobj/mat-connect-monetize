@@ -9,7 +9,7 @@ export function AthleteCard({ athlete }: { athlete: Athlete }) {
   return (
     <button
       onClick={() => navigate(`/athlete/${athlete.username}`)}
-      className="flex-shrink-0 w-[200px] rounded-lg bg-card border border-border p-3 text-left transition-transform active:scale-[0.98] shadow-card"
+      className="flex-shrink-0 w-full min-w-[180px] max-w-[200px] rounded-lg bg-card border border-border p-3 text-left transition-transform active:scale-[0.98] shadow-card"
     >
       <div className="w-full aspect-square rounded-md bg-muted mb-3 flex items-center justify-center overflow-hidden">
         <div className="w-full h-full bg-gradient-to-br from-primary/20 to-muted flex items-center justify-center text-4xl font-bold text-primary/40">
