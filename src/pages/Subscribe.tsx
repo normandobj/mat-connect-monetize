@@ -5,12 +5,14 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { BeltRank } from '@/data/mockData';
 
 const Subscribe = () => {
   const { username } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { lang } = useLanguage();
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'quarterly' | 'annual'>('quarterly');
   const [athlete, setAthlete] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -32,9 +34,9 @@ const Subscribe = () => {
   if (!athlete) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Atleta não encontrado</p></div>;
 
   const plans = [
-    { key: 'monthly' as const, label: 'Mensal', price: athlete.monthly_price, period: '/mês' },
-    { key: 'quarterly' as const, label: 'Trimestral', price: athlete.quarterly_price, period: '/3meses', badge: 'Popular' },
-    { key: 'annual' as const, label: 'Anual', price: athlete.annual_price, period: '/ano', badge: 'Melhor Valor' },
+    { key: 'monthly' as const, label: lang === 'en' ? 'Monthly' : 'Mensal', price: athlete.monthly_price, period: lang === 'en' ? '/month' : '/mês' },
+    { key: 'quarterly' as const, label: lang === 'en' ? 'Quarterly' : 'Trimestral', price: athlete.quarterly_price, period: lang === 'en' ? '/3months' : '/3meses', badge: 'Popular' },
+    { key: 'annual' as const, label: lang === 'en' ? 'Annual' : 'Anual', price: athlete.annual_price, period: lang === 'en' ? '/year' : '/ano', badge: lang === 'en' ? 'Best Value' : 'Melhor Valor' },
   ];
 
   const currentPlan = plans.find((p) => p.key === selectedPlan)!;
@@ -60,7 +62,9 @@ const Subscribe = () => {
           </div>
         </div>
 
-        <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Selecione o Plano</h2>
+        <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">
+          {lang === 'en' ? 'Select Plan' : 'Selecione o Plano'}
+        </h2>
         <div className="space-y-2 mb-6">
           {plans.map((plan) => (
             <motion.button
@@ -91,7 +95,7 @@ const Subscribe = () => {
 
         <div className="bg-card border border-border rounded-lg p-4 mb-6 shadow-card">
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Plano {currentPlan.label}</span>
+            <span className="text-muted-foreground">{lang === 'en' ? `${currentPlan.label} Plan` : `Plano ${currentPlan.label}`}</span>
             <span className="font-bold text-foreground tabular-nums">R${currentPlan.price}</span>
           </div>
         </div>
@@ -100,9 +104,13 @@ const Subscribe = () => {
           disabled
           className="w-full bg-muted text-muted-foreground font-bold text-sm py-3.5 rounded-md cursor-not-allowed opacity-70"
         >
-          Pagamentos em breve — use o link de convite gratuito do atleta
+          {lang === 'en' ? 'Card payments coming soon' : 'Assinaturas via cartão em breve'}
         </button>
-        <p className="text-center text-[10px] text-muted-foreground mt-3">Pagamento via Stripe será habilitado em breve</p>
+        <p className="text-center text-[10px] text-muted-foreground mt-3">
+          {lang === 'en'
+            ? 'For access now, ask the athlete for an invite link'
+            : 'Para acesso agora, peça o link de convite diretamente ao atleta'}
+        </p>
       </div>
     </div>
   );

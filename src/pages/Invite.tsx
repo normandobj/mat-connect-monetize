@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { BeltRank } from '@/data/mockData';
 
+const VALID_PLANS = ['free', 'trial7', 'monthly', 'quarterly', 'annual'];
+
 const planLabels: Record<string, { title: string; subtitle: string; badge: string; badgeColor: string; icon: React.ElementType }> = {
   free:      { title: 'Acesso Gratuito', subtitle: 'Voce foi convidado para acessar todo o conteudo sem pagar nada.', badge: 'Convite Especial', badgeColor: 'bg-primary/20 text-primary', icon: Gift },
   trial7:    { title: '7 Dias Gratis', subtitle: 'Comece agora sem pagar. No 7 dia voce escolhe se continua.', badge: 'Teste Gratis', badgeColor: 'bg-green-500/20 text-green-400', icon: Clock },
@@ -19,8 +21,14 @@ const Invite = () => {
   const navigate = useNavigate();
   const [athlete, setAthlete] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [invalidPlan, setInvalidPlan] = useState(false);
 
   useEffect(() => {
+    if (!plan || !VALID_PLANS.includes(plan)) {
+      setInvalidPlan(true);
+      setLoading(false);
+      return;
+    }
     const fetchAthlete = async () => {
       const { data } = await supabase
         .from('athlete_profiles')
@@ -31,13 +39,28 @@ const Invite = () => {
       setLoading(false);
     };
     fetchAthlete();
-  }, [username]);
+  }, [username, plan]);
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Carregando...</p></div>;
+
+  if (invalidPlan) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="text-center">
+          <h1 className="text-xl font-bold text-foreground mb-2">Link inválido</h1>
+          <p className="text-sm text-muted-foreground mb-4">O tipo de plano neste link não é válido.</p>
+          <button onClick={() => navigate('/explore')} className="bg-primary text-primary-foreground font-bold text-sm px-6 py-3 rounded-md">
+            Explorar atletas
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!athlete) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Atleta não encontrado</p></div>;
 
-  const planKey = plan || 'free';
-  const planInfo = planLabels[planKey] || planLabels['free'];
+  const planKey = plan!;
+  const planInfo = planLabels[planKey];
   const PlanIcon = planInfo.icon;
 
   const getPrice = () => {
@@ -53,9 +76,7 @@ const Invite = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="mx-auto max-w-[430px] w-full px-4 py-8 flex flex-col flex-1">
-
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-
           <div className="text-center mb-8">
             <p className="text-lg font-black text-foreground tracking-tight">mydrill<span className="text-primary">.app</span></p>
           </div>
@@ -105,7 +126,7 @@ const Invite = () => {
           )}
 
           <button
-            onClick={() => navigate('/register/athlete')}
+            onClick={() => navigate('/auth')}
             className="w-full bg-primary text-primary-foreground font-bold text-sm py-4 rounded-xl active:scale-[0.98] transition-transform"
           >
             {planKey === 'free' ? 'Criar conta e acessar gratis' :
