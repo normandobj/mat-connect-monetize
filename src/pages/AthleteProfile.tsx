@@ -49,10 +49,15 @@ const AthleteProfile = () => {
     setContentCount(cc || 0);
 
     // Check subscription
+    let subscribed = false;
     if (user) {
       const { data: sub } = await supabase.from('subscriptions').select('id').eq('subscriber_id', user.id).eq('athlete_id', athleteData.id).eq('status', 'active').maybeSingle();
-      setIsSubscribed(!!sub);
+      subscribed = !!sub;
+      setIsSubscribed(subscribed);
     }
+
+    // Check if current user is the athlete owner
+    const isOwner = user?.id === athleteData.user_id;
 
     // Fetch content
     const { data: contentData } = await supabase
@@ -79,7 +84,7 @@ const AthleteProfile = () => {
         athleteBelt: athleteData.belt as BeltRank,
         athletePhoto: athleteData.photo_url || '',
         createdAt: item.created_at,
-        locked: item.visibility === 'subscribers' && !isSubscribed,
+        locked: item.visibility === 'subscribers' && !subscribed && !isOwner,
         liveDate: item.live_date,
       }));
       setContent(mapped);
