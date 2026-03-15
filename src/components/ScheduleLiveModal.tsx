@@ -57,10 +57,9 @@ export function ScheduleLiveModal({ onClose, onSuccess }: Props) {
     }
   };
 
-  // Get tomorrow's date as min for date picker
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate());
-  const minDate = tomorrow.toISOString().split('T')[0];
+  // Get today's date as min for date picker
+  const today = new Date();
+  const minDate = today.toISOString().split('T')[0];
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center" onClick={onClose}>
