@@ -140,12 +140,28 @@ const UploadPage = () => {
               <>
                 <h2 className="text-sm font-bold text-foreground mb-4">Enviar conteudo</h2>
                 <input type="file" ref={fileInputRef} accept="video/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) setVideoFile(e.target.files[0]); }} />
-                <button onClick={() => fileInputRef.current?.click()}
-                  className="flex-1 max-h-60 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center gap-3 bg-card/50">
-                  <UploadIcon size={32} className="text-muted-foreground" />
-                  <p className="text-sm font-semibold text-muted-foreground">{videoFile ? videoFile.name : 'Gravar ou selecionar video'}</p>
-                  <p className="text-xs text-muted-foreground">Max 500MB</p>
-                </button>
+                {videoFile ? (
+                  <div className="flex-1 max-h-72 rounded-xl overflow-hidden border border-border relative">
+                    <video
+                      src={URL.createObjectURL(videoFile)}
+                      className="w-full h-full object-cover"
+                      controls
+                      playsInline
+                      preload="metadata"
+                    />
+                    <button onClick={() => setVideoFile(null)}
+                      className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm text-foreground text-xs font-semibold px-2 py-1 rounded-md">
+                      Trocar
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={() => fileInputRef.current?.click()}
+                    className="flex-1 max-h-60 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center gap-3 bg-card/50">
+                    <UploadIcon size={32} className="text-muted-foreground" />
+                    <p className="text-sm font-semibold text-muted-foreground">Gravar ou selecionar video</p>
+                    <p className="text-xs text-muted-foreground">Max 500MB</p>
+                  </button>
+                )}
               </>
             )}
             <button onClick={() => setStep(3)} disabled={isPlan && planText.trim().length === 0}
