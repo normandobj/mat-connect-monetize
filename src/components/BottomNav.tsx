@@ -1,4 +1,4 @@
-import { Home, Compass, PlusCircle, MessageSquare, User } from 'lucide-react';
+import { Home, Compass, PlusCircle, Bell, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
@@ -9,7 +9,7 @@ const navItems = [
   { icon: Home, label: 'Home', path: '/feed' },
   { icon: Compass, label: 'Explore', path: '/explore' },
   { icon: PlusCircle, label: 'Post', path: '/upload' },
-  { icon: MessageSquare, label: 'Msgs', path: '/messages' },
+  { icon: Bell, label: 'Alertas', path: '/notifications', badgeKey: 'notifications' },
   { icon: User, label: 'Profile', path: '/dashboard' },
 ];
 
@@ -23,18 +23,18 @@ export function BottomNav() {
     if (!user) return;
     const fetchUnread = () => {
       supabase
-        .from('messages')
+        .from('notifications')
         .select('id', { count: 'exact', head: true })
-        .eq('recipient_id', user.id)
+        .eq('user_id', user.id)
         .eq('read', false)
         .then(({ count }) => setUnreadCount(count || 0));
     };
     fetchUnread();
 
     const channel = supabase
-      .channel('unread-msgs')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => fetchUnread())
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, () => fetchUnread())
+      .channel('unread-notifs')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchUnread())
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchUnread())
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
@@ -45,7 +45,7 @@ export function BottomNav() {
       <div className="mx-auto flex max-w-[430px] items-center justify-around py-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
-          const showBadge = item.path === '/messages' && unreadCount > 0;
+          const showBadge = (item as any).badgeKey === 'notifications' && unreadCount > 0;
           return (
             <button
               key={item.path}
