@@ -28,8 +28,6 @@ const Register = () => {
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('Brazil');
   const [bioPt, setBioPt] = useState('');
-  const [pixKey, setPixKey] = useState('');
-
   // Photo state
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
