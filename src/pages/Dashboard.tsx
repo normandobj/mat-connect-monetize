@@ -190,15 +190,15 @@ const Dashboard = () => {
           </div>
           {showLiveOptions && (
             <div className="mt-2 bg-card border border-border rounded-lg overflow-hidden shadow-lg">
-              <button onClick={() => { setShowLiveOptions(false); /* LiveSection handles go-live */ const liveBtn = document.querySelector('[data-live-now]') as HTMLButtonElement; liveBtn?.click(); }}
+              <button onClick={() => { setShowLiveOptions(false); handleGoLiveNow(); }}
                 className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-primary/5 transition-colors border-b border-border">
-                <Radio size={16} className="text-red-500" />
+                <Radio size={16} className="text-destructive" />
                 <div>
                   <p className="text-sm font-semibold text-foreground">Ir ao vivo agora</p>
                   <p className="text-[10px] text-muted-foreground">Iniciar transmissão imediatamente</p>
                 </div>
               </button>
-              <button onClick={() => { setShowLiveOptions(false); const schedBtn = document.querySelector('[data-schedule-live]') as HTMLButtonElement; schedBtn?.click(); }}
+              <button onClick={() => { setShowLiveOptions(false); setShowScheduleModal(true); }}
                 className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-primary/5 transition-colors">
                 <Calendar size={16} className="text-primary" />
                 <div>
