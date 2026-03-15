@@ -15,26 +15,27 @@ const Dashboard = () => {
   const [contentCount, setContentCount] = useState(0);
   const [subCount, setSubCount] = useState(0);
   const [revenue, setRevenue] = useState(0);
-  const [checkedProfile, setCheckedProfile] = useState(false);
+  const [profileChecked, setProfileChecked] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth');
       return;
     }
-    if (!loading && user && !athleteProfile && !checkedProfile) {
-      // Double-check from DB before redirecting
-      setCheckedProfile(true);
-      refreshProfile().then(() => {});
+    if (!loading && user && !athleteProfile && !profileChecked) {
+      // Re-fetch from DB before deciding to redirect
+      refreshProfile().then(() => {
+        setProfileChecked(true);
+      });
     }
-  }, [user, loading, athleteProfile, checkedProfile]);
+  }, [user, loading, athleteProfile, profileChecked]);
 
-  // Only redirect to register after we've double-checked
+  // Only redirect after refresh has completed and profile is still null
   useEffect(() => {
-    if (!loading && user && !athleteProfile && checkedProfile) {
+    if (!loading && user && !athleteProfile && profileChecked) {
       navigate('/register/athlete');
     }
-  }, [loading, user, athleteProfile, checkedProfile]);
+  }, [loading, user, athleteProfile, profileChecked]);
 
   useEffect(() => {
     if (athleteProfile) fetchStats();
