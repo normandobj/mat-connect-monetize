@@ -56,17 +56,29 @@ const Subscribe = () => {
         return;
       }
 
-      const { error } = await supabase.from('subscriptions').insert({
-        subscriber_id: user.id,
-        athlete_id: athlete.id,
-        plan: selectedPlan,
-        status: 'active',
-      });
+      if (paymentMethod === 'card') {
+        // Stripe checkout
+        const { data, error } = await supabase.functions.invoke('create-checkout', {
+          body: { athleteId: athlete.id, plan: selectedPlan },
+        });
 
-      if (error) throw error;
+        if (error) throw error;
+        if (data?.url) {
+          window.open(data.url, '_blank');
+        }
+      } else {
+        // PIX - create subscription directly (simulated for now)
+        const { error } = await supabase.from('subscriptions').insert({
+          subscriber_id: user.id,
+          athlete_id: athlete.id,
+          plan: selectedPlan,
+          status: 'active',
+        });
 
-      toast.success('Assinatura realizada com sucesso! 🎉');
-      navigate(`/athlete/${athlete.username}`);
+        if (error) throw error;
+        toast.success('Assinatura via PIX realizada! 🎉');
+        navigate(`/athlete/${athlete.username}`);
+      }
     } catch (err: any) {
       toast.error('Erro ao realizar assinatura: ' + err.message);
     } finally {

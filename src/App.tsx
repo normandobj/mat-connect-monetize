@@ -16,6 +16,7 @@ import Register from "./pages/Register";
 import Invite from "./pages/Invite";
 import Auth from "./pages/Auth";
 import EditProfile from "./pages/EditProfile";
+import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
