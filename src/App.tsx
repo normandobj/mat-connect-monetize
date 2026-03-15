@@ -41,7 +41,6 @@ const App = () => (
               <Route path="/upload" element={<UploadPage />} />
               <Route path="/subscribe/:username" element={<Subscribe />} />
               <Route path="/register/athlete" element={<Register />} />
-              <Route path="/notifications" element={<Feed />} />
               <Route path="/messages" element={<Messages />} />
               <Route path="/subscription-success" element={<SubscriptionSuccess />} />
               <Route path="/invite/:username/:plan" element={<Invite />} />

@@ -1,5 +1,5 @@
 import { AppShell } from '@/components/AppShell';
-import { Users, DollarSign, FileText, Flame, Plus, Radio, Dumbbell, Link, Copy, Check, ChevronDown, LogOut, Pencil } from 'lucide-react';
+import { Users, DollarSign, FileText, Plus, Radio, Dumbbell, Link, Copy, Check, ChevronDown, LogOut, Pencil } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -25,9 +25,7 @@ const Dashboard = () => {
   }, [user, loading, athleteProfile]);
 
   useEffect(() => {
-    if (athleteProfile) {
-      fetchStats();
-    }
+    if (athleteProfile) fetchStats();
   }, [athleteProfile]);
 
   const fetchStats = async () => {
@@ -43,7 +41,6 @@ const Dashboard = () => {
       if (subsErr) throw subsErr;
       setSubCount(subs?.length || 0);
 
-      // Calculate revenue from active subscriptions
       let totalRevenue = 0;
       (subs || []).forEach((sub: any) => {
         if (sub.plan === 'monthly') totalRevenue += athleteProfile.monthly_price;
@@ -86,7 +83,6 @@ const Dashboard = () => {
     { icon: Users, label: 'Assinantes', value: String(subCount), color: 'text-primary' },
     { icon: DollarSign, label: 'Receita', value: `R$${revenue}`, color: 'text-green-400' },
     { icon: FileText, label: 'Conteudos', value: String(contentCount), color: 'text-primary' },
-    { icon: Flame, label: 'Sequencia', value: '0d', color: 'text-orange-400' },
   ];
 
   const months = ['Out', 'Nov', 'Dez', 'Jan', 'Fev', 'Mar'];
@@ -109,7 +105,7 @@ const Dashboard = () => {
         </div>
         <p className="text-sm text-muted-foreground mt-1">Visao geral do seu perfil.</p>
 
-        <div className="grid grid-cols-2 gap-2 mt-6">
+        <div className="grid grid-cols-3 gap-2 mt-6">
           {stats.map((stat) => (
             <div key={stat.label} className="bg-card border border-border rounded-lg p-3 shadow-card">
               <div className="flex items-center gap-2">

@@ -1,6 +1,6 @@
 import { AppShell } from '@/components/AppShell';
 import { ContentCard } from '@/components/ContentCard';
-import { Bell, ChevronRight, LogOut } from 'lucide-react';
+import { Bell, ChevronRight, LogOut, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,6 +9,8 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import type { ContentItem } from '@/data/mockData';
 
+const PAGE_SIZE = 10;
+
 const Feed = () => {
   const navigate = useNavigate();
   const { lang, setLang } = useLanguage();
@@ -16,11 +18,12 @@ const Feed = () => {
   const [content, setContent] = useState<ContentItem[]>([]);
   const [athletes, setAthletes] = useState<any[]>([]);
   const [subscribedAthleteIds, setSubscribedAthleteIds] = useState<string[]>([]);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/auth');
-    }
+    if (!authLoading && !user) navigate('/auth');
   }, [user, authLoading]);
 
   useEffect(() => {
@@ -29,7 +32,7 @@ const Feed = () => {
   }, [user]);
 
   useEffect(() => {
-    fetchContent();
+    fetchContent(0, true);
   }, [subscribedAthleteIds]);
 
   const fetchAthletes = async () => {
@@ -53,13 +56,14 @@ const Feed = () => {
     }
   };
 
-  const fetchContent = async () => {
+  const fetchContent = async (fromOffset: number, reset: boolean) => {
     try {
+      setLoadingMore(true);
       const { data, error } = await supabase
         .from('content')
         .select('*, athlete_profiles!inner(id, name, belt, username, photo_url)')
         .order('created_at', { ascending: false })
-        .limit(50);
+        .range(fromOffset, fromOffset + PAGE_SIZE - 1);
 
       if (error) throw error;
 
@@ -87,11 +91,23 @@ const Feed = () => {
             liveDate: item.live_date,
           };
         });
-        setContent(mapped);
+        if (reset) {
+          setContent(mapped);
+        } else {
+          setContent((prev) => [...prev, ...mapped]);
+        }
+        setHasMore(data.length === PAGE_SIZE);
+        setOffset(fromOffset + data.length);
       }
     } catch (err: any) {
       toast.error('Erro ao carregar conteúdo: ' + err.message);
+    } finally {
+      setLoadingMore(false);
     }
+  };
+
+  const handleLoadMore = () => {
+    fetchContent(offset, false);
   };
 
   const handleLogout = async () => {
@@ -108,9 +124,6 @@ const Feed = () => {
             <button onClick={() => setLang('pt')} className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${lang === 'pt' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}>PT</button>
             <button onClick={() => setLang('en')} className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${lang === 'en' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}>EN</button>
           </div>
-          <button className="relative">
-            <Bell size={20} className="text-muted-foreground" />
-          </button>
           <button onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
             <LogOut size={18} />
           </button>
@@ -139,7 +152,7 @@ const Feed = () => {
       </div>
 
       <div className="px-4 space-y-4 pb-4">
-        {content.length === 0 && (
+        {content.length === 0 && !loadingMore && (
           <div className="text-center py-12">
             <p className="text-sm text-muted-foreground">
               {lang === 'en' ? 'Subscribe to an athlete to start seeing their content here.' : 'Assine um atleta para ver conteúdo aqui.'}
@@ -149,6 +162,19 @@ const Feed = () => {
         {content.map((item) => (
           <ContentCard key={item.id} item={item} />
         ))}
+        {hasMore && content.length > 0 && (
+          <button
+            onClick={handleLoadMore}
+            disabled={loadingMore}
+            className="w-full py-3 rounded-lg border border-border bg-card text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {loadingMore ? (
+              <><Loader2 size={14} className="animate-spin" /> {lang === 'en' ? 'Loading...' : 'Carregando...'}</>
+            ) : (
+              lang === 'en' ? 'Load more' : 'Carregar mais'
+            )}
+          </button>
+        )}
       </div>
     </AppShell>
   );

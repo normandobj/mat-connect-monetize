@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 export function useLikes(contentId: string) {
   const { user } = useAuth();
@@ -9,14 +10,12 @@ export function useLikes(contentId: string) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Fetch count
     supabase
       .from('content_likes')
       .select('id', { count: 'exact', head: true })
       .eq('content_id', contentId)
       .then(({ count }) => setLikeCount(count || 0));
 
-    // Check if user liked
     if (user) {
       supabase
         .from('content_likes')
@@ -32,24 +31,35 @@ export function useLikes(contentId: string) {
     if (!user || loading) return;
     setLoading(true);
 
-    if (liked) {
-      setLiked(false);
-      setLikeCount((c) => c - 1);
-      await supabase
-        .from('content_likes')
-        .delete()
-        .eq('content_id', contentId)
-        .eq('user_id', user.id);
-    } else {
-      setLiked(true);
-      setLikeCount((c) => c + 1);
-      await supabase
-        .from('content_likes')
-        .insert({ content_id: contentId, user_id: user.id });
-    }
+    const wasLiked = liked;
+    const prevCount = likeCount;
 
-    setLoading(false);
-  }, [user, liked, contentId, loading]);
+    try {
+      if (wasLiked) {
+        const { error } = await supabase
+          .from('content_likes')
+          .delete()
+          .eq('content_id', contentId)
+          .eq('user_id', user.id);
+        if (error) throw error;
+        setLiked(false);
+        setLikeCount((c) => c - 1);
+      } else {
+        const { error } = await supabase
+          .from('content_likes')
+          .insert({ content_id: contentId, user_id: user.id });
+        if (error) throw error;
+        setLiked(true);
+        setLikeCount((c) => c + 1);
+      }
+    } catch (err: any) {
+      toast.error('Erro ao curtir');
+      setLiked(wasLiked);
+      setLikeCount(prevCount);
+    } finally {
+      setLoading(false);
+    }
+  }, [user, liked, likeCount, contentId, loading]);
 
   return { likeCount, liked, toggleLike };
 }

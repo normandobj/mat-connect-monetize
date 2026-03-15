@@ -24,6 +24,7 @@ const UploadPage = () => {
   const [visibility, setVisibility] = useState<'subscribers' | 'free'>('subscribers');
   const [planText, setPlanText] = useState('');
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoDuration, setVideoDuration] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isPlan = contentType === 'plan';
@@ -31,6 +32,24 @@ const UploadPage = () => {
   useEffect(() => {
     if (!authLoading && !user) navigate('/auth');
   }, [user, authLoading]);
+
+  const handleVideoSelect = (file: File) => {
+    setVideoFile(file);
+    // Extract duration
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.onloadedmetadata = () => {
+      setVideoDuration(Math.round(video.duration));
+      URL.revokeObjectURL(video.src);
+    };
+    video.src = URL.createObjectURL(file);
+  };
+
+  const formatDuration = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
 
   const bjjTerms: Record<string, string> = {
     'Raspagem': 'Sweep', 'raspagem': 'sweep',
@@ -79,6 +98,7 @@ const UploadPage = () => {
         plan_text_en: isPlan && autoTranslate ? mockTranslate(planText) : null,
         video_url: videoUrl,
         visibility,
+        duration: videoDuration ? formatDuration(videoDuration) : null,
       });
 
       if (error) throw error;
@@ -139,7 +159,7 @@ const UploadPage = () => {
             ) : (
               <>
                 <h2 className="text-sm font-bold text-foreground mb-4">Enviar conteudo</h2>
-                <input type="file" ref={fileInputRef} accept="video/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) setVideoFile(e.target.files[0]); }} />
+                <input type="file" ref={fileInputRef} accept="video/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleVideoSelect(e.target.files[0]); }} />
                 {videoFile ? (
                   <div className="flex-1 max-h-72 rounded-xl overflow-hidden border border-border relative">
                     <video
@@ -149,10 +169,15 @@ const UploadPage = () => {
                       playsInline
                       preload="metadata"
                     />
-                    <button onClick={() => setVideoFile(null)}
+                    <button onClick={() => { setVideoFile(null); setVideoDuration(null); }}
                       className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm text-foreground text-xs font-semibold px-2 py-1 rounded-md">
                       Trocar
                     </button>
+                    {videoDuration && (
+                      <div className="absolute bottom-2 left-2 bg-background/80 backdrop-blur-sm text-foreground text-xs font-medium px-2 py-1 rounded-md tabular-nums">
+                        {formatDuration(videoDuration)}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <button onClick={() => fileInputRef.current?.click()}
@@ -225,6 +250,7 @@ const UploadPage = () => {
               {isPlan && planText ? <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line line-clamp-6">{planText}</p> : <p className="text-xs text-muted-foreground mt-1">{description || 'Sem descricao'}</p>}
               {autoTranslate && <p className="text-[10px] text-primary/70 mt-2 flex items-center gap-1"><Globe size={10} /> Sera traduzido para ingles automaticamente</p>}
               <p className="text-[10px] text-muted-foreground mt-2 uppercase tracking-wider">{visibility === 'subscribers' ? '🔒 Apenas assinantes' : '👁 Visualizacao gratuita'}</p>
+              {videoDuration && <p className="text-[10px] text-muted-foreground mt-1">Duração: {formatDuration(videoDuration)}</p>}
             </div>
             <button onClick={handlePost} disabled={uploading}
               className="mt-auto bg-primary text-primary-foreground font-bold text-sm py-3.5 rounded-md active:scale-[0.98] transition-transform disabled:opacity-50">

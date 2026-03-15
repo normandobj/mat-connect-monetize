@@ -17,7 +17,6 @@ const EditProfile = () => {
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('');
   const [monthlyPrice, setMonthlyPrice] = useState(29);
-  const [pixKey, setPixKey] = useState('');
 
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [profileFile, setProfileFile] = useState<File | null>(null);
@@ -40,7 +39,6 @@ const EditProfile = () => {
       setCity(athleteProfile.city || '');
       setCountry(athleteProfile.country || '');
       setMonthlyPrice(athleteProfile.monthly_price || 29);
-      setPixKey(athleteProfile.pix_key || '');
       setCoverPreview(athleteProfile.cover_photo_url || null);
       setProfilePreview(athleteProfile.photo_url || null);
     }
@@ -51,18 +49,12 @@ const EditProfile = () => {
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setCoverFile(file);
-      setCoverPreview(URL.createObjectURL(file));
-    }
+    if (file) { setCoverFile(file); setCoverPreview(URL.createObjectURL(file)); }
   };
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setProfileFile(file);
-      setProfilePreview(URL.createObjectURL(file));
-    }
+    if (file) { setProfileFile(file); setProfilePreview(URL.createObjectURL(file)); }
   };
 
   const uploadPhoto = async (file: File, path: string) => {
@@ -75,17 +67,11 @@ const EditProfile = () => {
   const handleSave = async () => {
     if (!user || !athleteProfile) return;
     setSaving(true);
-
     try {
       let photoUrl = athleteProfile.photo_url;
       let coverUrl = athleteProfile.cover_photo_url;
-
-      if (profileFile) {
-        photoUrl = await uploadPhoto(profileFile, `${user.id}/profile.${profileFile.name.split('.').pop()}`);
-      }
-      if (coverFile) {
-        coverUrl = await uploadPhoto(coverFile, `${user.id}/cover.${coverFile.name.split('.').pop()}`);
-      }
+      if (profileFile) photoUrl = await uploadPhoto(profileFile, `${user.id}/profile.${profileFile.name.split('.').pop()}`);
+      if (coverFile) coverUrl = await uploadPhoto(coverFile, `${user.id}/cover.${coverFile.name.split('.').pop()}`);
 
       const { error } = await supabase
         .from('athlete_profiles')
@@ -99,14 +85,12 @@ const EditProfile = () => {
           monthly_price: monthlyPrice,
           quarterly_price: quarterlyPrice,
           annual_price: annualPrice,
-          pix_key: pixKey || null,
           photo_url: photoUrl,
           cover_photo_url: coverUrl,
         })
         .eq('id', athleteProfile.id);
 
       if (error) throw error;
-
       await refreshProfile();
       toast.success('Perfil atualizado com sucesso!');
       navigate('/dashboard');
@@ -178,21 +162,18 @@ const EditProfile = () => {
           </button>
         </div>
 
-        {/* Name */}
         <div className="mb-4">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Nome Completo</p>
           <input value={name} onChange={(e) => setName(e.target.value)}
             className="w-full bg-card border border-border rounded-lg px-3 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
         </div>
 
-        {/* Academy */}
         <div className="mb-4">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Academia</p>
           <input value={academy} onChange={(e) => setAcademy(e.target.value)}
             className="w-full bg-card border border-border rounded-lg px-3 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
         </div>
 
-        {/* City & Country */}
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Cidade</p>
@@ -206,7 +187,6 @@ const EditProfile = () => {
           </div>
         </div>
 
-        {/* Bio PT */}
         <div className="mb-4">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Bio (Português)</p>
           <textarea value={bioPt} onChange={(e) => setBioPt(e.target.value)} rows={4}
@@ -214,7 +194,6 @@ const EditProfile = () => {
             placeholder="Conte um pouco sobre você..." />
         </div>
 
-        {/* Bio EN */}
         <div className="mb-4">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Bio em inglês (opcional)</p>
           <textarea value={bioEn} onChange={(e) => setBioEn(e.target.value)} rows={4}
@@ -223,8 +202,7 @@ const EditProfile = () => {
           <p className="text-[10px] text-muted-foreground mt-1">Se vazio, será usado tradução automática.</p>
         </div>
 
-        {/* Monthly Price */}
-        <div className="mb-4">
+        <div className="mb-6">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Preço Mensal (R$)</p>
           <input type="number" value={monthlyPrice} onChange={(e) => setMonthlyPrice(Number(e.target.value))}
             className="w-full bg-card border border-border rounded-lg px-3 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
@@ -245,14 +223,6 @@ const EditProfile = () => {
           </div>
         </div>
 
-        {/* PIX Key */}
-        <div className="mb-6">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Chave PIX</p>
-          <input value={pixKey} onChange={(e) => setPixKey(e.target.value)} placeholder="CPF, email ou telefone"
-            className="w-full bg-card border border-border rounded-lg px-3 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
-        </div>
-
-        {/* Save Button */}
         <button onClick={handleSave} disabled={saving}
           className="w-full bg-primary text-primary-foreground py-3.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform disabled:opacity-50 mb-6">
           <Save size={16} />
