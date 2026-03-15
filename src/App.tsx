@@ -17,6 +17,7 @@ import Invite from "./pages/Invite";
 import Auth from "./pages/Auth";
 import EditProfile from "./pages/EditProfile";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
+import Messages from "./pages/Messages";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
               <Route path="/subscribe/:username" element={<Subscribe />} />
               <Route path="/register/athlete" element={<Register />} />
               <Route path="/notifications" element={<Feed />} />
+              <Route path="/messages" element={<Messages />} />
               <Route path="/subscription-success" element={<SubscriptionSuccess />} />
               <Route path="/invite/:username/:plan" element={<Invite />} />
               <Route path="*" element={<NotFound />} />

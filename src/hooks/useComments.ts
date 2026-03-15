@@ -1,0 +1,115 @@
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+
+export interface Comment {
+  id: string;
+  body: string;
+  created_at: string;
+  user_id: string;
+  commenter_name: string;
+}
+
+export function useComments(contentId: string, expanded: boolean) {
+  const { user } = useAuth();
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentCount, setCommentCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch count always
+  useEffect(() => {
+    supabase
+      .from('content_comments')
+      .select('id', { count: 'exact', head: true })
+      .eq('content_id', contentId)
+      .then(({ count }) => setCommentCount(count || 0));
+  }, [contentId]);
+
+  // Fetch full comments when expanded
+  useEffect(() => {
+    if (!expanded) return;
+    setLoading(true);
+    supabase
+      .from('content_comments')
+      .select('id, body, created_at, user_id')
+      .eq('content_id', contentId)
+      .order('created_at', { ascending: true })
+      .then(async ({ data }) => {
+        if (!data) { setLoading(false); return; }
+        // Fetch commenter names from profiles
+        const userIds = [...new Set(data.map((c) => c.user_id))];
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, full_name')
+          .in('id', userIds);
+        const nameMap = new Map((profiles || []).map((p) => [p.id, p.full_name || 'Anônimo']));
+        setComments(
+          data.map((c) => ({
+            ...c,
+            commenter_name: nameMap.get(c.user_id) || 'Anônimo',
+          }))
+        );
+        setLoading(false);
+      });
+  }, [contentId, expanded]);
+
+  // Realtime subscription
+  useEffect(() => {
+    if (!expanded) return;
+    const channel = supabase
+      .channel(`comments-${contentId}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'content_comments',
+        filter: `content_id=eq.${contentId}`,
+      }, async (payload) => {
+        const newComment = payload.new as any;
+        // Don't duplicate if we already have it
+        setComments((prev) => {
+          if (prev.some((c) => c.id === newComment.id)) return prev;
+          return [...prev, { ...newComment, commenter_name: 'Novo' }];
+        });
+        setCommentCount((c) => c + 1);
+        // Fetch name
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', newComment.user_id)
+          .maybeSingle();
+        setComments((prev) =>
+          prev.map((c) =>
+            c.id === newComment.id ? { ...c, commenter_name: profile?.full_name || 'Anônimo' } : c
+          )
+        );
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [contentId, expanded]);
+
+  const addComment = useCallback(async (body: string) => {
+    if (!user || !body.trim()) return;
+    const { data, error } = await supabase
+      .from('content_comments')
+      .insert({ content_id: contentId, user_id: user.id, body: body.trim() })
+      .select('id, body, created_at, user_id')
+      .single();
+    if (data && !error) {
+      const name = user.user_metadata?.full_name || 'Você';
+      setComments((prev) => {
+        if (prev.some((c) => c.id === data.id)) return prev;
+        return [...prev, { ...data, commenter_name: name }];
+      });
+      setCommentCount((c) => c + 1);
+    }
+  }, [user, contentId]);
+
+  const deleteComment = useCallback(async (commentId: string) => {
+    await supabase.from('content_comments').delete().eq('id', commentId);
+    setComments((prev) => prev.filter((c) => c.id !== commentId));
+    setCommentCount((c) => Math.max(0, c - 1));
+  }, []);
+
+  return { comments, commentCount, loading, addComment, deleteComment };
+}

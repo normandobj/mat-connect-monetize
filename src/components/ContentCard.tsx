@@ -3,6 +3,9 @@ import { BeltBadge } from './BeltBadge';
 import { Lock, Play, FileText, Radio, Heart, MessageCircle, Share2, Globe, Bell, Pause } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useState, useRef } from 'react';
+import { useLikes } from '@/hooks/useLikes';
+import { useComments } from '@/hooks/useComments';
+import { CommentSection } from './CommentSection';
 
 export function ContentCard({ item }: { item: ContentItem }) {
   const { lang } = useLanguage();
@@ -11,6 +14,10 @@ export function ContentCard({ item }: { item: ContentItem }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+
+  const { likeCount, liked, toggleLike } = useLikes(item.id);
+  const { comments, commentCount, loading: commentsLoading, addComment, deleteComment } = useComments(item.id, commentsOpen);
 
   const typeIcon = {
     drill: <Play size={14} />,
@@ -45,6 +52,32 @@ export function ContentCard({ item }: { item: ContentItem }) {
     setShowControls(true);
     togglePlay();
   };
+
+  const InteractionBar = () => (
+    <>
+      <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border">
+        <button onClick={toggleLike} className={`flex items-center gap-1 text-xs transition-colors ${liked ? 'text-red-500' : 'text-muted-foreground hover:text-primary'}`}>
+          <Heart size={14} fill={liked ? 'currentColor' : 'none'} />
+          {likeCount > 0 && <span className="tabular-nums">{likeCount}</span>}
+        </button>
+        <button onClick={() => setCommentsOpen(!commentsOpen)} className={`flex items-center gap-1 text-xs transition-colors ${commentsOpen ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>
+          <MessageCircle size={14} />
+          {commentCount > 0 && <span className="tabular-nums">{commentCount}</span>}
+        </button>
+        <button className="flex items-center gap-1 text-muted-foreground text-xs hover:text-primary transition-colors">
+          <Share2 size={14} />
+        </button>
+      </div>
+      {commentsOpen && (
+        <CommentSection
+          comments={comments}
+          loading={commentsLoading}
+          onAdd={addComment}
+          onDelete={deleteComment}
+        />
+      )}
+    </>
+  );
 
   // Training plans render as text cards
   if (item.type === 'plan') {
@@ -88,17 +121,7 @@ export function ContentCard({ item }: { item: ContentItem }) {
             </span>
           )}
 
-          <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border">
-            <button className="flex items-center gap-1 text-muted-foreground text-xs hover:text-primary transition-colors">
-              <Heart size={14} />
-            </button>
-            <button className="flex items-center gap-1 text-muted-foreground text-xs hover:text-primary transition-colors">
-              <MessageCircle size={14} />
-            </button>
-            <button className="flex items-center gap-1 text-muted-foreground text-xs hover:text-primary transition-colors">
-              <Share2 size={14} />
-            </button>
-          </div>
+          <InteractionBar />
         </div>
       </div>
     );
@@ -121,7 +144,6 @@ export function ContentCard({ item }: { item: ContentItem }) {
               onClick={handleVideoClick}
               onEnded={() => { setIsPlaying(false); setShowControls(true); }}
             />
-            {/* Play/Pause overlay */}
             <div
               className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 cursor-pointer ${showControls || !isPlaying ? 'opacity-100' : 'opacity-0'}`}
               onClick={handleVideoClick}
@@ -194,17 +216,7 @@ export function ContentCard({ item }: { item: ContentItem }) {
           </button>
         )}
 
-        <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border">
-          <button className="flex items-center gap-1 text-muted-foreground text-xs hover:text-primary transition-colors">
-            <Heart size={14} />
-          </button>
-          <button className="flex items-center gap-1 text-muted-foreground text-xs hover:text-primary transition-colors">
-            <MessageCircle size={14} />
-          </button>
-          <button className="flex items-center gap-1 text-muted-foreground text-xs hover:text-primary transition-colors">
-            <Share2 size={14} />
-          </button>
-        </div>
+        <InteractionBar />
       </div>
     </div>
   );
