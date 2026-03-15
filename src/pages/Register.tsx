@@ -16,7 +16,7 @@ const belts: { rank: BeltRank; color: string }[] = [
 
 const Register = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const [step, setStep] = useState(1);
   const [selectedBelt, setSelectedBelt] = useState<BeltRank>('blue');
   const [monthlyPrice, setMonthlyPrice] = useState(29);
