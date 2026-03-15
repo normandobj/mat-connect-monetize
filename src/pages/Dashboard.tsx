@@ -1,5 +1,6 @@
 import { AppShell } from '@/components/AppShell';
 import { Users, DollarSign, FileText, Plus, Radio, Dumbbell, Link, Copy, Check, ChevronDown, LogOut, Pencil, MessageSquare } from 'lucide-react';
+import { LiveSection } from '@/components/LiveSection';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
