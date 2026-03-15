@@ -239,14 +239,16 @@ const Register = () => {
 
         {step === 4 && (
           <div className="flex-1 flex flex-col gap-4">
-            <h2 className="text-sm font-bold text-foreground">Connect Payment</h2>
-            <p className="text-xs text-muted-foreground">How would you like to receive your earnings?</p>
-            <div>
-              <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">PIX Key</label>
-              <input value={pixKey} onChange={(e) => setPixKey(e.target.value)} placeholder="CPF, email, or phone" className="mt-1 w-full bg-card border border-border rounded-md px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+            <h2 className="text-sm font-bold text-foreground">Review & Confirm</h2>
+            <div className="bg-card border border-border rounded-lg p-4 space-y-3">
+              <div className="flex justify-between text-xs"><span className="text-muted-foreground">Name</span><span className="font-bold text-foreground">{name}</span></div>
+              <div className="flex justify-between text-xs"><span className="text-muted-foreground">Username</span><span className="font-bold text-foreground">@{username}</span></div>
+              <div className="flex justify-between text-xs"><span className="text-muted-foreground">Belt</span><span className="font-bold text-foreground capitalize">{selectedBelt}</span></div>
+              {academy && <div className="flex justify-between text-xs"><span className="text-muted-foreground">Academy</span><span className="font-bold text-foreground">{academy}</span></div>}
+              <div className="flex justify-between text-xs"><span className="text-muted-foreground">Monthly Price</span><span className="font-bold text-foreground">R${monthlyPrice}</span></div>
             </div>
             <div className="bg-card border border-border rounded-lg p-3 text-center">
-              <p className="text-xs text-muted-foreground">Payouts are processed monthly. Platform fee: 15%.</p>
+              <p className="text-xs text-muted-foreground">Payments are processed via credit card. Platform fee: 15%.</p>
             </div>
             <button onClick={handleSubmit} disabled={loading} className="mt-auto bg-primary text-primary-foreground font-bold text-sm py-3.5 rounded-md active:scale-[0.98] transition-transform disabled:opacity-50">
               {loading ? 'Salvando...' : 'Complete Registration 🚀'}
