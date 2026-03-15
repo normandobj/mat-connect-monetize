@@ -15,30 +15,43 @@ const Dashboard = () => {
   const [contentCount, setContentCount] = useState(0);
   const [subCount, setSubCount] = useState(0);
   const [revenue, setRevenue] = useState(0);
-  const [profileChecked, setProfileChecked] = useState(false);
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
 
+  // On mount: if no athleteProfile yet, re-fetch from DB before deciding
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth');
       return;
     }
-    if (!loading && user && !athleteProfile && !profileChecked) {
-      // Re-fetch from DB before deciding to redirect
-      refreshProfile().then(() => {
-        setProfileChecked(true);
-      });
+    if (!loading && user) {
+      if (athleteProfile) {
+        setIsProfileLoading(false);
+      } else {
+        // Direct DB check to avoid context race condition
+        supabase
+          .from('athlete_profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle()
+          .then(async ({ data }) => {
+            if (data) {
+              // Profile exists in DB - refresh context to pick it up
+              await refreshProfile();
+            } else {
+              // Truly no profile - redirect to registration
+              navigate('/register/athlete');
+            }
+            setIsProfileLoading(false);
+          });
+      }
     }
-  }, [user, loading, athleteProfile, profileChecked]);
+  }, [user, loading]);
 
-  // Only redirect after refresh has completed and profile is still null
   useEffect(() => {
-    if (!loading && user && !athleteProfile && profileChecked) {
-      navigate('/register/athlete');
+    if (athleteProfile) {
+      setIsProfileLoading(false);
+      fetchStats();
     }
-  }, [loading, user, athleteProfile, profileChecked]);
-
-  useEffect(() => {
-    if (athleteProfile) fetchStats();
   }, [athleteProfile]);
 
   const fetchStats = async () => {
@@ -66,7 +79,7 @@ const Dashboard = () => {
     }
   };
 
-  if (loading || (!athleteProfile && !profileChecked)) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground text-sm">Carregando dashboard...</p></div>;
+  if (loading || isProfileLoading) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground text-sm">Carregando dashboard...</p></div>;
   if (!athleteProfile) return null;
 
   const athlete = athleteProfile;
