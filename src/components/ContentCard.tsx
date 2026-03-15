@@ -2,7 +2,7 @@ import { type ContentItem } from '@/data/mockData';
 import { BeltBadge } from './BeltBadge';
 import { Lock, Play, FileText, Radio, Heart, MessageCircle, Share2, Globe, Bell, Pause, ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLikes } from '@/hooks/useLikes';
 import { useComments } from '@/hooks/useComments';
 import { CommentSection } from './CommentSection';
