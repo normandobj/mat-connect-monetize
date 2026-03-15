@@ -18,27 +18,49 @@ export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadNotifs, setUnreadNotifs] = useState(0);
+  const [unreadMessages, setUnreadMessages] = useState(0);
 
   useEffect(() => {
     if (!user) return;
-    const fetchUnread = () => {
+
+    const fetchUnreadNotifs = () => {
       supabase
         .from('notifications')
         .select('id', { count: 'exact', head: true })
         .eq('user_id', user.id)
         .eq('read', false)
-        .then(({ count }) => setUnreadCount(count || 0));
+        .then(({ count }) => setUnreadNotifs(count || 0));
     };
-    fetchUnread();
 
-    const channel = supabase
+    const fetchUnreadMessages = () => {
+      supabase
+        .from('messages')
+        .select('id', { count: 'exact', head: true })
+        .eq('recipient_id', user.id)
+        .eq('read', false)
+        .then(({ count }) => setUnreadMessages(count || 0));
+    };
+
+    fetchUnreadNotifs();
+    fetchUnreadMessages();
+
+    const notifChannel = supabase
       .channel('unread-notifs')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchUnread())
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchUnread())
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchUnreadNotifs())
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchUnreadNotifs())
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    const msgChannel = supabase
+      .channel('unread-msgs')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `recipient_id=eq.${user.id}` }, () => fetchUnreadMessages())
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages', filter: `recipient_id=eq.${user.id}` }, () => fetchUnreadMessages())
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(notifChannel);
+      supabase.removeChannel(msgChannel);
+    };
   }, [user]);
 
   return (
