@@ -176,9 +176,16 @@ export function ContentCard({ item }: { item: ContentItem }) {
           </div>
         )}
 
-        {item.type === 'live' && item.liveDate && (
-          <div className="absolute top-2 left-2 bg-red-600 px-2 py-0.5 rounded text-[11px] font-bold text-foreground flex items-center gap-1">
-            <Radio size={10} /> LIVE
+        {item.type === 'live' && (
+          <div className={`absolute top-2 left-2 px-2 py-0.5 rounded text-[11px] font-bold text-white flex items-center gap-1 ${
+            item.liveStatus === 'live' ? 'bg-red-600 animate-pulse' : item.liveStatus === 'ended' ? 'bg-muted-foreground' : 'bg-orange-500'
+          }`}>
+            <Radio size={10} />
+            {item.liveStatus === 'live'
+              ? (lang === 'en' ? 'LIVE NOW' : 'AO VIVO')
+              : item.liveStatus === 'ended'
+                ? (lang === 'en' ? 'ENDED' : 'ENCERRADA')
+                : (lang === 'en' ? 'SCHEDULED' : 'AGENDADA')}
           </div>
         )}
 
