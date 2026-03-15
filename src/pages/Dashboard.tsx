@@ -106,6 +106,29 @@ const Dashboard = () => {
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
+  const handleGoLiveNow = async () => {
+    if (!athleteProfile) return;
+    setGoingLive(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-meet', {
+        body: {
+          athlete_id: athleteProfile.id,
+          title: `Live - ${athleteProfile.name}`,
+          description: '',
+          scheduled_at: null,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast.success('Live criada! Seus assinantes foram notificados.');
+      if (data?.meet_url) window.open(data.meet_url, '_blank');
+    } catch (err: any) {
+      toast.error(err.message || 'Erro ao criar live');
+    } finally {
+      setGoingLive(false);
+    }
+  };
+
   const handleLogout = async () => {
     await signOut();
     navigate('/');
