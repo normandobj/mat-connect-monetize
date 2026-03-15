@@ -72,6 +72,7 @@ const AthleteProfile = () => {
         planText_pt: item.plan_text_pt,
         planText_en: item.plan_text_en,
         thumbnail: item.thumbnail_url || '',
+        videoUrl: item.video_url || undefined,
         duration: item.duration,
         athleteId: item.athlete_id,
         athleteName: athleteData.name,
