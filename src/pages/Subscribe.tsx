@@ -13,7 +13,7 @@ const Subscribe = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { lang } = useLanguage();
-  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'quarterly' | 'annual'>('quarterly');
+  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'quarterly' | 'annual' | null>(null);
   const [athlete, setAthlete] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -30,16 +30,35 @@ const Subscribe = () => {
     fetchAthlete();
   }, [username]);
 
+  // Auto-select first available plan
+  useEffect(() => {
+    if (!athlete) return;
+    const availablePlans = getAvailablePlans();
+    if (availablePlans.length > 0) {
+      // Prefer quarterly > monthly > annual
+      const preferred = availablePlans.find(p => p.key === 'quarterly') || availablePlans[0];
+      setSelectedPlan(preferred.key);
+    }
+  }, [athlete]);
+
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Carregando...</p></div>;
   if (!athlete) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Atleta não encontrado</p></div>;
 
-  const plans = [
-    { key: 'monthly' as const, label: lang === 'en' ? 'Monthly' : 'Mensal', price: athlete.monthly_price, period: lang === 'en' ? '/month' : '/mês' },
-    { key: 'quarterly' as const, label: lang === 'en' ? 'Quarterly' : 'Trimestral', price: athlete.quarterly_price, period: lang === 'en' ? '/3months' : '/3meses', badge: 'Popular' },
-    { key: 'annual' as const, label: lang === 'en' ? 'Annual' : 'Anual', price: athlete.annual_price, period: lang === 'en' ? '/year' : '/ano', badge: lang === 'en' ? 'Best Value' : 'Melhor Valor' },
-  ];
+  function getAvailablePlans() {
+    const plans: { key: 'monthly' | 'quarterly' | 'annual'; label: string; price: number; period: string; badge?: string }[] = [
+      { key: 'monthly', label: lang === 'en' ? 'Monthly' : 'Mensal', price: athlete.monthly_price, period: lang === 'en' ? '/month' : '/mês' },
+    ];
+    if (athlete.quarterly_enabled && athlete.quarterly_price > 0) {
+      plans.push({ key: 'quarterly', label: lang === 'en' ? 'Quarterly' : 'Trimestral', price: athlete.quarterly_price, period: lang === 'en' ? '/3months' : '/3meses', badge: 'Popular' });
+    }
+    if (athlete.annual_enabled && athlete.annual_price > 0) {
+      plans.push({ key: 'annual', label: lang === 'en' ? 'Annual' : 'Anual', price: athlete.annual_price, period: lang === 'en' ? '/year' : '/ano', badge: lang === 'en' ? 'Best Value' : 'Melhor Valor' });
+    }
+    return plans;
+  }
 
-  const currentPlan = plans.find((p) => p.key === selectedPlan)!;
+  const plans = getAvailablePlans();
+  const currentPlan = plans.find((p) => p.key === selectedPlan) || plans[0];
 
   return (
     <div className="min-h-screen bg-background">
@@ -93,12 +112,14 @@ const Subscribe = () => {
           ))}
         </div>
 
-        <div className="bg-card border border-border rounded-lg p-4 mb-6 shadow-card">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">{lang === 'en' ? `${currentPlan.label} Plan` : `Plano ${currentPlan.label}`}</span>
-            <span className="font-bold text-foreground tabular-nums">R${currentPlan.price}</span>
+        {currentPlan && (
+          <div className="bg-card border border-border rounded-lg p-4 mb-6 shadow-card">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">{lang === 'en' ? `${currentPlan.label} Plan` : `Plano ${currentPlan.label}`}</span>
+              <span className="font-bold text-foreground tabular-nums">R${currentPlan.price}</span>
+            </div>
           </div>
-        </div>
+        )}
 
         <button
           disabled

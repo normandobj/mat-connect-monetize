@@ -17,6 +17,7 @@ export type Database = {
       athlete_profiles: {
         Row: {
           academy: string | null
+          annual_enabled: boolean
           annual_price: number
           belt: string
           bio_en: string | null
@@ -31,12 +32,14 @@ export type Database = {
           name: string
           photo_url: string | null
           pix_key: string | null
+          quarterly_enabled: boolean
           quarterly_price: number
           user_id: string
           username: string
         }
         Insert: {
           academy?: string | null
+          annual_enabled?: boolean
           annual_price?: number
           belt?: string
           bio_en?: string | null
@@ -51,12 +54,14 @@ export type Database = {
           name: string
           photo_url?: string | null
           pix_key?: string | null
+          quarterly_enabled?: boolean
           quarterly_price?: number
           user_id: string
           username: string
         }
         Update: {
           academy?: string | null
+          annual_enabled?: boolean
           annual_price?: number
           belt?: string
           bio_en?: string | null
@@ -71,6 +76,7 @@ export type Database = {
           name?: string
           photo_url?: string | null
           pix_key?: string | null
+          quarterly_enabled?: boolean
           quarterly_price?: number
           user_id?: string
           username?: string

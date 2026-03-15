@@ -15,7 +15,7 @@ const AthleteProfile = () => {
   const navigate = useNavigate();
   const { lang, setLang } = useLanguage();
   const { user } = useAuth();
-  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'quarterly' | 'annual'>('quarterly');
+  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'quarterly' | 'annual' | null>(null);
   const [athlete, setAthlete] = useState<any>(null);
   const [content, setContent] = useState<ContentItem[]>([]);
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -37,11 +37,7 @@ const AthleteProfile = () => {
         .maybeSingle();
 
       if (error) throw error;
-
-      if (!athleteData) {
-        setLoading(false);
-        return;
-      }
+      if (!athleteData) { setLoading(false); return; }
 
       setAthlete(athleteData);
 
@@ -105,11 +101,19 @@ const AthleteProfile = () => {
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Carregando...</p></div>;
   if (!athlete) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Atleta não encontrado</p></div>;
 
-  const plans = [
-    { key: 'monthly' as const, label: isEn ? 'Monthly' : 'Mensal', price: athlete.monthly_price, period: isEn ? '/mo' : '/mês' },
-    { key: 'quarterly' as const, label: isEn ? 'Quarterly' : 'Trimestral', price: athlete.quarterly_price, period: isEn ? '/3mo' : '/3meses', badge: isEn ? 'Popular' : 'Popular' },
-    { key: 'annual' as const, label: isEn ? 'Annual' : 'Anual', price: athlete.annual_price, period: isEn ? '/yr' : '/ano', badge: isEn ? 'Best Value' : 'Melhor Valor' },
+  // Build plans based on enabled flags
+  const plans: { key: 'monthly' | 'quarterly' | 'annual'; label: string; price: number; period: string; badge?: string }[] = [
+    { key: 'monthly', label: isEn ? 'Monthly' : 'Mensal', price: athlete.monthly_price, period: isEn ? '/mo' : '/mês' },
   ];
+  if (athlete.quarterly_enabled && athlete.quarterly_price > 0) {
+    plans.push({ key: 'quarterly', label: isEn ? 'Quarterly' : 'Trimestral', price: athlete.quarterly_price, period: isEn ? '/3mo' : '/3meses', badge: 'Popular' });
+  }
+  if (athlete.annual_enabled && athlete.annual_price > 0) {
+    plans.push({ key: 'annual', label: isEn ? 'Annual' : 'Anual', price: athlete.annual_price, period: isEn ? '/yr' : '/ano', badge: isEn ? 'Best Value' : 'Melhor Valor' });
+  }
+
+  // Auto-select first plan if none selected
+  const effectivePlan = selectedPlan && plans.some(p => p.key === selectedPlan) ? selectedPlan : plans[0]?.key;
 
   return (
     <div className="min-h-screen bg-background">
@@ -169,12 +173,12 @@ const AthleteProfile = () => {
 
         <section className="px-4 mt-8">
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">{isEn ? 'Choose your plan' : 'Escolha seu plano'}</h2>
-          <div className="grid grid-cols-3 gap-2">
+          <div className={`grid gap-2 ${plans.length === 1 ? 'grid-cols-1' : plans.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
             {plans.map((plan) => (
               <motion.button key={plan.key} onClick={() => setSelectedPlan(plan.key)} whileTap={{ scale: 0.98 }}
-                className={`relative rounded-lg p-3 text-center border transition-colors ${selectedPlan === plan.key ? 'border-primary bg-primary/10' : 'border-border bg-card'}`}>
+                className={`relative rounded-lg p-3 text-center border transition-colors ${effectivePlan === plan.key ? 'border-primary bg-primary/10' : 'border-border bg-card'}`}>
                 {plan.badge && <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">{plan.badge}</span>}
-                {selectedPlan === plan.key && <div className="absolute top-1.5 right-1.5"><Check size={12} className="text-primary" /></div>}
+                {effectivePlan === plan.key && <div className="absolute top-1.5 right-1.5"><Check size={12} className="text-primary" /></div>}
                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{plan.label}</p>
                 <p className="text-lg font-black text-foreground mt-1 tabular-nums">R${plan.price}</p>
                 <p className="text-[10px] text-muted-foreground">{plan.period}</p>
