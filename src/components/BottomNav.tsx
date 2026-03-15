@@ -67,8 +67,9 @@ export function BottomNav() {
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur-md">
       <div className="mx-auto flex max-w-[430px] items-center justify-around py-2">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          const showBadge = (item as any).badgeKey === 'notifications' && unreadCount > 0;
+          const isActive = location.pathname === item.path || (item.path === '/messages' && location.pathname.startsWith('/messages'));
+          const badgeCount = (item as any).badgeKey === 'notifications' ? unreadNotifs : (item as any).badgeKey === 'messages' ? unreadMessages : 0;
+          const showBadge = badgeCount > 0;
           return (
             <button
               key={item.path}
