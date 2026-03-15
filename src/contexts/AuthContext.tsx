@@ -30,26 +30,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchUserData = async (userId: string) => {
-    // Fetch role
-    const { data: roleData } = await supabase.rpc('get_user_role', { _user_id: userId });
-    
-    // Always check for athlete profile regardless of role
-    const { data: athlete } = await supabase
-      .from('athlete_profiles')
-      .select('*')
-      .eq('user_id', userId)
-      .maybeSingle();
-    
-    if (athlete) {
-      setAthleteProfile(athlete);
-      setUserRole('athlete');
-      // Ensure user_roles table is in sync
-      if (roleData !== 'athlete') {
-        await supabase.from('user_roles').upsert({ user_id: userId, role: 'athlete' as const }, { onConflict: 'user_id,role' }).select();
+    try {
+      const { data: roleData } = await supabase.rpc('get_user_role', { _user_id: userId });
+      
+      const { data: athlete } = await supabase
+        .from('athlete_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+      
+      if (athlete) {
+        setAthleteProfile(athlete);
+        setUserRole('athlete');
+        if (roleData !== 'athlete') {
+          await supabase.from('user_roles').upsert({ user_id: userId, role: 'athlete' as const }, { onConflict: 'user_id,role' }).select();
+        }
+      } else {
+        setUserRole(roleData || null);
+        setAthleteProfile(null);
       }
-    } else {
-      setUserRole(roleData || null);
+    } catch (err) {
+      console.error('Error fetching user data:', err);
+      setUserRole(null);
       setAthleteProfile(null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,13 +63,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        // Use setTimeout to avoid deadlock with Supabase auth
         setTimeout(() => fetchUserData(session.user.id), 0);
       } else {
         setUserRole(null);
         setAthleteProfile(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -72,8 +76,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchUserData(session.user.id);
+      } else {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();

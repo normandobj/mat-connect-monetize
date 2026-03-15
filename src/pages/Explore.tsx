@@ -3,7 +3,10 @@ import { AthleteCard } from '@/components/AthleteCard';
 import { mockAthletes, type BeltRank, type Athlete } from '@/data/mockData';
 import { Search } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 const filters: { label: string; value: string }[] = [
   { label: 'All', value: 'all' },
@@ -15,12 +18,24 @@ const filters: { label: string; value: string }[] = [
 ];
 
 const Explore = () => {
+  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [athletes, setAthletes] = useState<Athlete[]>([]);
 
   useEffect(() => {
-    supabase.from('athlete_profiles').select('*').then(({ data }) => {
+    if (!authLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, authLoading]);
+
+  useEffect(() => {
+    supabase.from('athlete_profiles').select('*').then(({ data, error }) => {
+      if (error) {
+        toast.error('Erro ao carregar atletas: ' + error.message);
+        return;
+      }
       if (data && data.length > 0) {
         setAthletes(data.map(a => ({
           id: a.id,

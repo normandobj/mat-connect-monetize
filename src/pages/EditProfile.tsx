@@ -12,6 +12,7 @@ const EditProfile = () => {
 
   const [name, setName] = useState('');
   const [bioPt, setBioPt] = useState('');
+  const [bioEn, setBioEn] = useState('');
   const [academy, setAcademy] = useState('');
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('');
@@ -34,6 +35,7 @@ const EditProfile = () => {
     if (athleteProfile) {
       setName(athleteProfile.name || '');
       setBioPt(athleteProfile.bio_pt || '');
+      setBioEn(athleteProfile.bio_en || '');
       setAcademy(athleteProfile.academy || '');
       setCity(athleteProfile.city || '');
       setCountry(athleteProfile.country || '');
@@ -90,6 +92,7 @@ const EditProfile = () => {
         .update({
           name,
           bio_pt: bioPt,
+          bio_en: bioEn || null,
           academy,
           city,
           country,
@@ -203,12 +206,21 @@ const EditProfile = () => {
           </div>
         </div>
 
-        {/* Bio */}
+        {/* Bio PT */}
         <div className="mb-4">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Bio (Português)</p>
           <textarea value={bioPt} onChange={(e) => setBioPt(e.target.value)} rows={4}
             className="w-full bg-card border border-border rounded-lg px-3 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none"
             placeholder="Conte um pouco sobre você..." />
+        </div>
+
+        {/* Bio EN */}
+        <div className="mb-4">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Bio em inglês (opcional)</p>
+          <textarea value={bioEn} onChange={(e) => setBioEn(e.target.value)} rows={4}
+            className="w-full bg-card border border-border rounded-lg px-3 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+            placeholder="Tell a bit about yourself... (leave empty for auto-translate)" />
+          <p className="text-[10px] text-muted-foreground mt-1">Se vazio, será usado tradução automática.</p>
         </div>
 
         {/* Monthly Price */}
