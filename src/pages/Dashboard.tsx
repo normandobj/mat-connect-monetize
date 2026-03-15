@@ -66,7 +66,7 @@ const Dashboard = () => {
     }
   };
 
-  if (loading || (!athleteProfile && !checkedProfile)) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground text-sm">Carregando dashboard...</p></div>;
+  if (loading || (!athleteProfile && !profileChecked)) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground text-sm">Carregando dashboard...</p></div>;
   if (!athleteProfile) return null;
 
   const athlete = athleteProfile;
