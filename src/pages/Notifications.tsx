@@ -126,8 +126,8 @@ export default function Notifications() {
 
   const getIcon = (type: string) => {
     switch (type) {
-      case 'like': return <Heart size={18} className="text-red-500" />;
-      case 'comment': return <MessageCircle size={18} className="text-blue-500" />;
+      case 'like': return <Heart size={18} className="text-destructive" />;
+      case 'comment': return <MessageCircle size={18} className="text-accent-foreground" />;
       case 'message': return <Mail size={18} className="text-primary" />;
       default: return null;
     }
