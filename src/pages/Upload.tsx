@@ -1,5 +1,5 @@
 import { AppShell } from '@/components/AppShell';
-import { Video, Dumbbell, FileText, Radio, ArrowLeft, Upload as UploadIcon, Globe, AlignLeft, AlertTriangle, Info } from 'lucide-react';
+import { Video, Dumbbell, FileText, ArrowLeft, Upload as UploadIcon, Globe, AlignLeft, AlertTriangle, Info } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,7 +16,6 @@ const contentTypes = [
   { key: 'drill', icon: Video, label: 'Drill Clip', desc: 'Video curto de tecnica' },
   { key: 'position', icon: Dumbbell, label: 'Posicao', desc: 'Detalhamento de posicao' },
   { key: 'plan', icon: FileText, label: 'Planilha de Treino', desc: 'Escreva sua planilha em texto' },
-  { key: 'live', icon: Radio, label: 'Agendar Live', desc: 'Transmissao ao vivo' },
 ];
 
 const UploadPage = () => {
