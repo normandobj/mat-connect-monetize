@@ -23,18 +23,18 @@ export function BottomNav() {
     if (!user) return;
     const fetchUnread = () => {
       supabase
-        .from('messages')
+        .from('notifications')
         .select('id', { count: 'exact', head: true })
-        .eq('recipient_id', user.id)
+        .eq('user_id', user.id)
         .eq('read', false)
         .then(({ count }) => setUnreadCount(count || 0));
     };
     fetchUnread();
 
     const channel = supabase
-      .channel('unread-msgs')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => fetchUnread())
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, () => fetchUnread())
+      .channel('unread-notifs')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchUnread())
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchUnread())
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
