@@ -6,8 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { Radio } from 'lucide-react';
 import type { ContentItem } from '@/data/mockData';
 
 const PAGE_SIZE = 10;
@@ -35,6 +36,80 @@ const Feed = () => {
   useEffect(() => {
     fetchContent(0, true);
   }, [subscribedAthleteIds]);
+
+  // Realtime: live status changes + new live notifications
+  useEffect(() => {
+    if (!user) return;
+
+    // Listen for content changes (live status updates)
+    const contentChannel = supabase
+      .channel('feed-live-updates')
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'content',
+      }, (payload) => {
+        const updated = payload.new as any;
+        if (updated.type === 'live') {
+          setContent(prev => prev.map(item => {
+            if (item.id === updated.id) {
+              return { ...item, liveStatus: updated.live_status, isLiveNow: updated.is_live_now };
+            }
+            return item;
+          }));
+        }
+      })
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'content',
+      }, (payload) => {
+        const newItem = payload.new as any;
+        if (newItem.type === 'live' && newItem.is_live_now) {
+          // Refetch to get full data with athlete info
+          fetchContent(0, true);
+        }
+      })
+      .subscribe();
+
+    // Listen for live notifications
+    const notifChannel = supabase
+      .channel('feed-live-notifs')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${user.id}`,
+      }, async (payload) => {
+        const notif = payload.new as any;
+        if (notif.type === 'live' && notif.content_id) {
+          // Fetch athlete name for the toast
+          const { data: contentData } = await supabase
+            .from('content')
+            .select('title_pt, title_en, athlete_profiles!inner(name)')
+            .eq('id', notif.content_id)
+            .single();
+
+          const athleteName = (contentData as any)?.athlete_profiles?.name || '';
+          const isEn = lang === 'en';
+          toast(
+            isEn
+              ? `🔴 ${athleteName} is live now! Click to join.`
+              : `🔴 ${athleteName} está ao vivo agora! Clique para entrar.`,
+            {
+              icon: <Radio size={16} className="text-destructive" />,
+              duration: 8000,
+            }
+          );
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(contentChannel);
+      supabase.removeChannel(notifChannel);
+    };
+  }, [user, lang]);
 
   const fetchAthletes = async () => {
     try {

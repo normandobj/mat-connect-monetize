@@ -41,44 +41,17 @@ export function GoogleMeetConnection() {
     }
   };
 
-  const handleConnect = () => {
+  const handleConnect = async () => {
     if (!athleteProfile) return;
-
-    const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-    const redirectUri = `${SUPABASE_URL}/functions/v1/google-oauth-callback`;
-    const state = btoa(JSON.stringify({ athleteId: athleteProfile.id, origin: window.location.origin }));
-
-    // We need the Google Client ID from the edge function, but we'll use a direct approach
-    // The client ID is stored as a secret, so we redirect through a helper
-    const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-
-    if (!GOOGLE_CLIENT_ID) {
-      // Fallback: call edge function to get auth URL
-      startOAuthViaEdge();
-      return;
-    }
-
-    const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
-    authUrl.searchParams.set('client_id', GOOGLE_CLIENT_ID);
-    authUrl.searchParams.set('redirect_uri', redirectUri);
-    authUrl.searchParams.set('response_type', 'code');
-    authUrl.searchParams.set('scope', 'https://www.googleapis.com/auth/calendar.events');
-    authUrl.searchParams.set('access_type', 'offline');
-    authUrl.searchParams.set('prompt', 'consent');
-    authUrl.searchParams.set('state', state);
-
-    window.location.href = authUrl.toString();
-  };
-
-  const startOAuthViaEdge = async () => {
     try {
       const { data, error } = await supabase.functions.invoke('google-oauth-start', {
-        body: { athlete_id: athleteProfile!.id },
+        body: { athlete_id: athleteProfile.id },
       });
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
       if (data?.url) window.location.href = data.url;
     } catch (err: any) {
-      toast.error(err.message || 'Failed to start Google OAuth');
+      toast.error(err.message || (isEn ? 'Failed to start Google OAuth' : 'Erro ao iniciar OAuth do Google'));
     }
   };
 
