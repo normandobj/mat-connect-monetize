@@ -90,6 +90,10 @@ const Feed = () => {
             createdAt: item.created_at,
             locked: item.visibility === 'subscribers' && !isSubscribed,
             liveDate: item.live_date,
+            meetUrl: item.meet_url || undefined,
+            scheduledAt: item.scheduled_at || undefined,
+            isLiveNow: item.is_live_now || false,
+            liveStatus: item.live_status || undefined,
           };
         });
         if (reset) {
