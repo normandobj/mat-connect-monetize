@@ -1,4 +1,4 @@
-import { Home, Compass, PlusCircle, MessageSquare, User } from 'lucide-react';
+import { Home, Compass, PlusCircle, Bell, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
