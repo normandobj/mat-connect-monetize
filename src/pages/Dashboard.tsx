@@ -21,6 +21,7 @@ const Dashboard = () => {
   const [showLiveOptions, setShowLiveOptions] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [goingLive, setGoingLive] = useState(false);
+  const [hasActiveLive, setHasActiveLive] = useState(false);
 
   // On mount: if no athleteProfile yet, re-fetch from DB before deciding
   useEffect(() => {

@@ -16,7 +16,6 @@ const contentTypes = [
   { key: 'drill', icon: Video, label: 'Drill Clip', desc: 'Video curto de tecnica' },
   { key: 'position', icon: Dumbbell, label: 'Posicao', desc: 'Detalhamento de posicao' },
   { key: 'plan', icon: FileText, label: 'Planilha de Treino', desc: 'Escreva sua planilha em texto' },
-  { key: 'live', icon: Radio, label: 'Agendar Live', desc: 'Transmissao ao vivo' },
 ];
 
 const UploadPage = () => {
