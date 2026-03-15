@@ -30,6 +30,7 @@ export interface ContentItem {
   planText_pt?: string;
   planText_en?: string;
   thumbnail: string;
+  videoUrl?: string;
   duration?: string;
   athleteId: string;
   athleteName: string;
