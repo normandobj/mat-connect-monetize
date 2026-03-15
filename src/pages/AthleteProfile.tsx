@@ -100,7 +100,10 @@ const AthleteProfile = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-[430px] pb-24">
-        <div className="relative h-44 bg-gradient-to-br from-primary/20 to-secondary">
+        <div className="relative h-44 bg-gradient-to-br from-primary/20 to-secondary overflow-hidden">
+          {athlete.cover_photo_url && (
+            <img src={athlete.cover_photo_url} alt="Cover" className="absolute inset-0 w-full h-full object-cover" />
+          )}
           <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-10 w-8 h-8 rounded-full bg-background/60 backdrop-blur-sm flex items-center justify-center">
             <ArrowLeft size={16} className="text-foreground" />
           </button>
