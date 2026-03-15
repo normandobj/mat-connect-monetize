@@ -55,18 +55,6 @@ export function GoogleMeetConnection() {
     }
   };
 
-  const startOAuthViaEdge = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke('google-oauth-start', {
-        body: { athlete_id: athleteProfile!.id },
-      });
-      if (error) throw error;
-      if (data?.url) window.location.href = data.url;
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to start Google OAuth');
-    }
-  };
-
   const handleDisconnect = async () => {
     if (!athleteProfile) return;
     setDisconnecting(true);
