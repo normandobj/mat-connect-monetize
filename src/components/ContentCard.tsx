@@ -22,7 +22,63 @@ export function ContentCard({ item }: { item: ContentItem }) {
 
   const lockLabel = lang === 'en' ? 'Subscribe to unlock' : 'Assine para desbloquear';
   const notifyLabel = lang === 'en' ? 'Notify me' : 'Me avise';
-  const downloadLabel = lang === 'en' ? 'Download PDF' : 'Baixar PDF';
+  const planText = lang === 'en' ? (item.planText_en || item.planText_pt) : item.planText_pt;
+
+  // Training plans render as text cards — no thumbnail needed
+  if (item.type === 'plan') {
+    return (
+      <div className="rounded-lg bg-card border border-border overflow-hidden shadow-card animate-slide-up">
+        <div className="p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <FileText size={16} className="text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{typeLabel[lang].plan}</p>
+              <p className="text-sm font-bold text-foreground truncate">{title}</p>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold text-primary/60">
+                {item.athleteName.charAt(0)}
+              </div>
+              <BeltBadge belt={item.athleteBelt} size="sm" />
+            </div>
+          </div>
+
+          {item.locked ? (
+            <div className="bg-muted/50 rounded-lg px-4 py-6 flex flex-col items-center gap-2">
+              <Lock size={20} className="text-muted-foreground" />
+              <p className="text-xs font-semibold text-muted-foreground">{lockLabel}</p>
+            </div>
+          ) : (
+            <div className="bg-background border border-border rounded-lg px-3 py-3">
+              <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line line-clamp-6">
+                {planText || description}
+              </p>
+            </div>
+          )}
+
+          {lang === 'en' && (
+            <span className="inline-flex items-center gap-1 text-[10px] text-primary/70 mt-2">
+              <Globe size={10} /> Auto-translated by mydrill AI
+            </span>
+          )}
+
+          <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border">
+            <button className="flex items-center gap-1 text-muted-foreground text-xs hover:text-primary transition-colors">
+              <Heart size={14} /> 18
+            </button>
+            <button className="flex items-center gap-1 text-muted-foreground text-xs hover:text-primary transition-colors">
+              <MessageCircle size={14} /> 5
+            </button>
+            <button className="flex items-center gap-1 text-muted-foreground text-xs hover:text-primary transition-colors">
+              <Share2 size={14} />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-lg bg-card border border-border overflow-hidden shadow-card animate-slide-up">
@@ -80,12 +136,6 @@ export function ContentCard({ item }: { item: ContentItem }) {
         {item.type === 'live' && item.liveDate && (
           <button className="mt-2 flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-semibold px-3 py-1.5 rounded-md">
             <Bell size={12} /> {notifyLabel}
-          </button>
-        )}
-
-        {item.type === 'plan' && !item.locked && (
-          <button className="mt-2 flex items-center gap-1.5 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1.5 rounded-md">
-            <FileText size={12} /> {downloadLabel}
           </button>
         )}
 

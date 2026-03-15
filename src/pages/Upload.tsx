@@ -1,13 +1,13 @@
 import { AppShell } from '@/components/AppShell';
-import { Video, Dumbbell, FileText, Radio, ArrowLeft, Upload as UploadIcon, Globe } from 'lucide-react';
+import { Video, Dumbbell, FileText, Radio, ArrowLeft, Upload as UploadIcon, Globe, AlignLeft } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const contentTypes = [
-  { key: 'drill', icon: Video, label: 'Drill Clip', desc: 'Short technique video' },
-  { key: 'position', icon: Dumbbell, label: 'Position Tutorial', desc: 'Detailed breakdown' },
-  { key: 'plan', icon: FileText, label: 'Training Plan', desc: 'Upload PDF' },
-  { key: 'live', icon: Radio, label: 'Schedule Live', desc: 'Go live with subscribers' },
+  { key: 'drill', icon: Video, label: 'Drill Clip', desc: 'Video curto de tecnica' },
+  { key: 'position', icon: Dumbbell, label: 'Posicao', desc: 'Detalhamento de posicao' },
+  { key: 'plan', icon: FileText, label: 'Planilha de Treino', desc: 'Escreva sua planilha em texto' },
+  { key: 'live', icon: Radio, label: 'Agendar Live', desc: 'Transmissao ao vivo' },
 ];
 
 const UploadPage = () => {
@@ -18,6 +18,8 @@ const UploadPage = () => {
   const [description, setDescription] = useState('');
   const [autoTranslate, setAutoTranslate] = useState(true);
   const [visibility, setVisibility] = useState<'subscribers' | 'free'>('subscribers');
+  const [planText, setPlanText] = useState('');
+  const isPlan = contentType === 'plan';
 
   // Simulates a realistic translation by mapping common BJJ terms PT → EN
   const bjjTerms: Record<string, string> = {
@@ -87,22 +89,48 @@ const UploadPage = () => {
         {/* Step 2 */}
         {step === 2 && (
           <div className="flex-1 flex flex-col">
-            <h2 className="text-sm font-bold text-foreground mb-4">Upload your content</h2>
+            {isPlan ? (
+              <>
+                <div className="flex items-center gap-2 mb-1">
+                  <AlignLeft size={16} className="text-primary" />
+                  <h2 className="text-sm font-bold text-foreground">Escreva sua planilha</h2>
+                </div>
+                <p className="text-xs text-muted-foreground mb-4">
+                  Descreva os exercicios, series, repeticoes e observacoes. Seus assinantes vao ler diretamente no app.
+                </p>
+                <textarea
+                  value={planText}
+                  onChange={(e) => setPlanText(e.target.value)}
+                  placeholder={`Ex:\n\nSegunda — Forca\n• Agachamento 4x8\n• Levantamento terra 3x5\n• Prancha 3x1min\n\nTerca — Tecnica BJJ\n• Aquecimento 15min\n• Guarda De La Riva 30min\n• Raspagens 20min\n• Rolamento livre 30min\n\nQuarta — Descanso ativo\n• Mobilidade 20min`}
+                  rows={14}
+                  className="flex-1 w-full bg-card border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary resize-none leading-relaxed"
+                />
+                <div className="flex items-center justify-between mt-2 mb-4">
+                  <span className="text-[10px] text-muted-foreground">{planText.length} caracteres</span>
+                  <span className="text-[10px] text-muted-foreground">Sem limite</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="text-sm font-bold text-foreground mb-4">Enviar conteudo</h2>
+                <button
+                  onClick={() => setStep(3)}
+                  className="flex-1 max-h-60 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center gap-3 bg-card/50"
+                >
+                  <UploadIcon size={32} className="text-muted-foreground" />
+                  <p className="text-sm font-semibold text-muted-foreground">
+                    Gravar ou selecionar video
+                  </p>
+                  <p className="text-xs text-muted-foreground">Max 500MB</p>
+                </button>
+              </>
+            )}
             <button
               onClick={() => setStep(3)}
-              className="flex-1 max-h-60 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center gap-3 bg-card/50"
+              disabled={isPlan && planText.trim().length === 0}
+              className="mt-4 bg-primary text-primary-foreground font-bold text-sm py-3 rounded-md disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <UploadIcon size={32} className="text-muted-foreground" />
-              <p className="text-sm font-semibold text-muted-foreground">
-                {contentType === 'plan' ? 'Tap to select PDF' : 'Tap to record or select video'}
-              </p>
-              <p className="text-xs text-muted-foreground">Max 500MB</p>
-            </button>
-            <button
-              onClick={() => setStep(3)}
-              className="mt-4 bg-primary text-primary-foreground font-bold text-sm py-3 rounded-md"
-            >
-              Continue
+              Continuar
             </button>
           </div>
         )}
@@ -191,18 +219,33 @@ const UploadPage = () => {
             <h2 className="text-sm font-bold text-foreground">Review & Post</h2>
 
             <div className="bg-card border border-border rounded-lg p-4 shadow-card">
-              <div className="aspect-video bg-muted rounded-md flex items-center justify-center mb-3">
-                <span className="text-4xl">🥋</span>
-              </div>
-              <p className="text-sm font-bold text-foreground">{title || 'Untitled'}</p>
-              <p className="text-xs text-muted-foreground mt-1">{description || 'No description'}</p>
+              {isPlan ? (
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <FileText size={18} className="text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Planilha de Treino</p>
+                    <p className="text-sm font-bold text-foreground">{title || 'Sem titulo'}</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="aspect-video bg-muted rounded-md flex items-center justify-center mb-3">
+                  <span className="text-4xl">🥋</span>
+                </div>
+              )}
+              {isPlan && planText ? (
+                <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line line-clamp-6">{planText}</p>
+              ) : (
+                <p className="text-xs text-muted-foreground mt-1">{description || 'Sem descricao'}</p>
+              )}
               {autoTranslate && (
                 <p className="text-[10px] text-primary/70 mt-2 flex items-center gap-1">
-                  <Globe size={10} /> Will be auto-translated to English
+                  <Globe size={10} /> Sera traduzido para ingles automaticamente
                 </p>
               )}
               <p className="text-[10px] text-muted-foreground mt-2 uppercase tracking-wider">
-                {visibility === 'subscribers' ? '🔒 Subscribers only' : '👁 Free preview'}
+                {visibility === 'subscribers' ? '🔒 Apenas assinantes' : '👁 Visualizacao gratuita'}
               </p>
             </div>
 

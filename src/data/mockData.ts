@@ -27,6 +27,8 @@ export interface ContentItem {
   title_en: string;
   description_pt: string;
   description_en: string;
+  planText_pt?: string;
+  planText_en?: string;
   thumbnail: string;
   duration?: string;
   athleteId: string;
@@ -195,6 +197,8 @@ export const mockContent: ContentItem[] = [
     title_en: 'Weekly Training Plan — Sweep Focus',
     description_pt: 'Plano de treino semanal focado em raspagens para competidores.',
     description_en: 'Weekly training plan focused on sweeps for competitors.',
+    planText_pt: 'Segunda — Forca e Condicionamento\n• Agachamento 4x8\n• Levantamento terra 3x5\n• Prancha 3x1min\n\nTerca — Tecnica BJJ (Raspagens)\n• Aquecimento 15min\n• De La Riva: raspagem basica 20min\n• Gancho simples: detalhe do quadril 20min\n• Rolamento livre 30min\n\nQuarta — Descanso ativo\n• Mobilidade de quadril 20min\n• Alongamento geral 15min\n\nQuinta — Tecnica BJJ (Passagem)\n• Aquecimento 15min\n• Passagem de leg drag 25min\n• Situacoes especificas 20min\n• Rolamento 30min\n\nSexta — Condicao fisica\n• HIIT 20min\n• Core 15min\n\nSabado — Treino livre\n• Aquecimento\n• Rolamento longo 60min\n\nObs: beba 2L de agua por dia. Durma pelo menos 8h antes dos treinos pesados.',
+    planText_en: 'Monday — Strength & Conditioning\n• Squat 4x8\n• Deadlift 3x5\n• Plank 3x1min\n\nTuesday — BJJ Technique (Sweeps)\n• Warm-up 15min\n• De La Riva: basic sweep 20min\n• Single hook: hip detail 20min\n• Free rolling 30min\n\nWednesday — Active Rest\n• Hip mobility 20min\n• General stretching 15min\n\nThursday — BJJ Technique (Passing)\n• Warm-up 15min\n• Leg drag pass 25min\n• Specific situations 20min\n• Rolling 30min\n\nFriday — Conditioning\n• HIIT 20min\n• Core 15min\n\nSaturday — Open Mat\n• Warm-up\n• Long rolling session 60min\n\nNote: drink 2L of water daily. Sleep at least 8h before heavy training days.',
     thumbnail: '',
     athleteId: '1',
     athleteName: 'Lucas Barbosa',
