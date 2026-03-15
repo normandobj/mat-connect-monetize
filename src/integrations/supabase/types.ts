@@ -14,16 +14,224 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      athlete_profiles: {
+        Row: {
+          academy: string | null
+          annual_price: number
+          belt: string
+          bio_en: string | null
+          bio_pt: string | null
+          city: string | null
+          country: string | null
+          country_flag: string | null
+          cover_photo_url: string | null
+          created_at: string | null
+          id: string
+          monthly_price: number
+          name: string
+          photo_url: string | null
+          pix_key: string | null
+          quarterly_price: number
+          user_id: string
+          username: string
+        }
+        Insert: {
+          academy?: string | null
+          annual_price?: number
+          belt?: string
+          bio_en?: string | null
+          bio_pt?: string | null
+          city?: string | null
+          country?: string | null
+          country_flag?: string | null
+          cover_photo_url?: string | null
+          created_at?: string | null
+          id?: string
+          monthly_price?: number
+          name: string
+          photo_url?: string | null
+          pix_key?: string | null
+          quarterly_price?: number
+          user_id: string
+          username: string
+        }
+        Update: {
+          academy?: string | null
+          annual_price?: number
+          belt?: string
+          bio_en?: string | null
+          bio_pt?: string | null
+          city?: string | null
+          country?: string | null
+          country_flag?: string | null
+          cover_photo_url?: string | null
+          created_at?: string | null
+          id?: string
+          monthly_price?: number
+          name?: string
+          photo_url?: string | null
+          pix_key?: string | null
+          quarterly_price?: number
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      content: {
+        Row: {
+          athlete_id: string
+          created_at: string | null
+          description_en: string | null
+          description_pt: string | null
+          duration: string | null
+          id: string
+          live_date: string | null
+          plan_text_en: string | null
+          plan_text_pt: string | null
+          thumbnail_url: string | null
+          title_en: string | null
+          title_pt: string
+          type: string
+          video_url: string | null
+          visibility: string
+        }
+        Insert: {
+          athlete_id: string
+          created_at?: string | null
+          description_en?: string | null
+          description_pt?: string | null
+          duration?: string | null
+          id?: string
+          live_date?: string | null
+          plan_text_en?: string | null
+          plan_text_pt?: string | null
+          thumbnail_url?: string | null
+          title_en?: string | null
+          title_pt: string
+          type?: string
+          video_url?: string | null
+          visibility?: string
+        }
+        Update: {
+          athlete_id?: string
+          created_at?: string | null
+          description_en?: string | null
+          description_pt?: string | null
+          duration?: string | null
+          id?: string
+          live_date?: string | null
+          plan_text_en?: string | null
+          plan_text_pt?: string | null
+          thumbnail_url?: string | null
+          title_en?: string | null
+          title_pt?: string
+          type?: string
+          video_url?: string | null
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_athlete_id_fkey"
+            columns: ["athlete_id"]
+            isOneToOne: false
+            referencedRelation: "athlete_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          athlete_id: string
+          created_at: string | null
+          id: string
+          plan: string
+          status: string
+          subscriber_id: string
+        }
+        Insert: {
+          athlete_id: string
+          created_at?: string | null
+          id?: string
+          plan?: string
+          status?: string
+          subscriber_id: string
+        }
+        Update: {
+          athlete_id?: string
+          created_at?: string | null
+          id?: string
+          plan?: string
+          status?: string
+          subscriber_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_athlete_id_fkey"
+            columns: ["athlete_id"]
+            isOneToOne: false
+            referencedRelation: "athlete_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: { Args: { _user_id: string }; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "athlete" | "subscriber"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +358,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["athlete", "subscriber"],
+    },
   },
 } as const

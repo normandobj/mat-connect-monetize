@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import Landing from "./pages/Landing";
 import AthleteProfile from "./pages/AthleteProfile";
 import Feed from "./pages/Feed";
@@ -13,33 +14,37 @@ import UploadPage from "./pages/Upload";
 import Subscribe from "./pages/Subscribe";
 import Register from "./pages/Register";
 import Invite from "./pages/Invite";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <LanguageProvider>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/athlete/:username" element={<AthleteProfile />} />
-          <Route path="/feed" element={<Feed />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/explore" element={<Explore />} />
-          <Route path="/upload" element={<UploadPage />} />
-          <Route path="/subscribe/:username" element={<Subscribe />} />
-          <Route path="/register/athlete" element={<Register />} />
-          <Route path="/notifications" element={<Feed />} />
-          <Route path="/invite/:username/:plan" element={<Invite />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-    </LanguageProvider>
+    <AuthProvider>
+      <LanguageProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/athlete/:username" element={<AthleteProfile />} />
+              <Route path="/feed" element={<Feed />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/explore" element={<Explore />} />
+              <Route path="/upload" element={<UploadPage />} />
+              <Route path="/subscribe/:username" element={<Subscribe />} />
+              <Route path="/register/athlete" element={<Register />} />
+              <Route path="/notifications" element={<Feed />} />
+              <Route path="/invite/:username/:plan" element={<Invite />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </LanguageProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
