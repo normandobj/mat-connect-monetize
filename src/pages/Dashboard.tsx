@@ -1,5 +1,5 @@
 import { AppShell } from '@/components/AppShell';
-import { Users, DollarSign, FileText, Plus, Radio, Dumbbell, Link, Copy, Check, ChevronDown, LogOut, Pencil } from 'lucide-react';
+import { Users, DollarSign, FileText, Plus, Radio, Dumbbell, Link, Copy, Check, ChevronDown, LogOut, Pencil, MessageSquare } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,21 +8,33 @@ import { toast } from 'sonner';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user, athleteProfile, signOut, loading } = useAuth();
+  const { user, athleteProfile, signOut, loading, refreshProfile } = useAuth();
   const [copiedLink, setCopiedLink] = useState(false);
   const [selectedInvitePlan, setSelectedInvitePlan] = useState('free');
   const [showPlanDropdown, setShowPlanDropdown] = useState(false);
   const [contentCount, setContentCount] = useState(0);
   const [subCount, setSubCount] = useState(0);
   const [revenue, setRevenue] = useState(0);
+  const [checkedProfile, setCheckedProfile] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth');
-    } else if (!loading && user && !athleteProfile) {
+      return;
+    }
+    if (!loading && user && !athleteProfile && !checkedProfile) {
+      // Double-check from DB before redirecting
+      setCheckedProfile(true);
+      refreshProfile().then(() => {});
+    }
+  }, [user, loading, athleteProfile, checkedProfile]);
+
+  // Only redirect to register after we've double-checked
+  useEffect(() => {
+    if (!loading && user && !athleteProfile && checkedProfile) {
       navigate('/register/athlete');
     }
-  }, [user, loading, athleteProfile]);
+  }, [loading, user, athleteProfile, checkedProfile]);
 
   useEffect(() => {
     if (athleteProfile) fetchStats();
@@ -53,7 +65,8 @@ const Dashboard = () => {
     }
   };
 
-  if (loading || !athleteProfile) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground text-sm">Carregando dashboard...</p></div>;
+  if (loading || (!athleteProfile && !checkedProfile)) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground text-sm">Carregando dashboard...</p></div>;
+  if (!athleteProfile) return null;
 
   const athlete = athleteProfile;
 
@@ -117,6 +130,25 @@ const Dashboard = () => {
           ))}
         </div>
 
+        {/* Quick Actions - Post & Chat */}
+        <div className="mt-6">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Acoes Rapidas</h2>
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { icon: Plus, label: 'Postar Drill', href: '/upload' },
+              { icon: Radio, label: 'Fazer Live', href: '/upload' },
+              { icon: Dumbbell, label: 'Planilha', href: '/upload' },
+              { icon: MessageSquare, label: 'Chat', href: '/messages' },
+            ].map((action) => (
+              <button key={action.label} onClick={() => navigate(action.href)}
+                className="bg-card border border-border rounded-lg p-3 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform">
+                <action.icon size={20} className="text-primary" />
+                <span className="text-[10px] font-semibold text-foreground">{action.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="bg-card border border-border rounded-lg p-4 mt-4 shadow-card">
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Receita Mensal</h2>
           <div className="flex items-end gap-2 h-32">
@@ -127,23 +159,6 @@ const Dashboard = () => {
                 </div>
                 <span className="text-[9px] text-muted-foreground font-medium">{months[i]}</span>
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-6">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Acoes Rapidas</h2>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { icon: Plus, label: 'Postar Drill', href: '/upload' },
-              { icon: Radio, label: 'Fazer Live', href: '/upload' },
-              { icon: Dumbbell, label: 'Planilha', href: '/upload' },
-            ].map((action) => (
-              <button key={action.label} onClick={() => navigate(action.href)}
-                className="bg-card border border-border rounded-lg p-3 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform">
-                <action.icon size={20} className="text-primary" />
-                <span className="text-[10px] font-semibold text-foreground">{action.label}</span>
-              </button>
             ))}
           </div>
         </div>
