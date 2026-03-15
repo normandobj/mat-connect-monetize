@@ -9,7 +9,7 @@ const navItems = [
   { icon: Home, label: 'Home', path: '/feed' },
   { icon: Compass, label: 'Explore', path: '/explore' },
   { icon: PlusCircle, label: 'Post', path: '/upload' },
-  { icon: MessageSquare, label: 'Msgs', path: '/messages' },
+  { icon: Bell, label: 'Alertas', path: '/notifications', badgeKey: 'notifications' },
   { icon: User, label: 'Profile', path: '/dashboard' },
 ];
 
