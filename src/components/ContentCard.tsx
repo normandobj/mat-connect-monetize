@@ -1,12 +1,12 @@
 import { type ContentItem } from '@/data/mockData';
 import { BeltBadge } from './BeltBadge';
 import { Lock, Play, FileText, Radio, Heart, MessageCircle, Share2, Globe, Bell } from 'lucide-react';
-import { useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-export function ContentCard({ item, lang = 'en' }: { item: ContentItem; lang?: 'pt' | 'en' }) {
-  const [showLang, setShowLang] = useState<'pt' | 'en'>(lang);
-  const title = showLang === 'en' ? item.title_en : item.title_pt;
-  const description = showLang === 'en' ? item.description_en : item.description_pt;
+export function ContentCard({ item }: { item: ContentItem }) {
+  const { lang } = useLanguage();
+  const title = lang === 'en' ? item.title_en : item.title_pt;
+  const description = lang === 'en' ? item.description_en : item.description_pt;
 
   const typeIcon = {
     drill: <Play size={14} />,
@@ -16,11 +16,13 @@ export function ContentCard({ item, lang = 'en' }: { item: ContentItem; lang?: '
   };
 
   const typeLabel = {
-    drill: 'Drill',
-    position: 'Position',
-    plan: 'Training Plan',
-    live: 'Live Session',
+    en: { drill: 'Drill', position: 'Position', plan: 'Training Plan', live: 'Live Session' },
+    pt: { drill: 'Drill', position: 'Posição', plan: 'Planilha', live: 'Live' },
   };
+
+  const lockLabel = lang === 'en' ? 'Subscribe to unlock' : 'Assine para desbloquear';
+  const notifyLabel = lang === 'en' ? 'Notify me' : 'Me avise';
+  const downloadLabel = lang === 'en' ? 'Download PDF' : 'Baixar PDF';
 
   return (
     <div className="rounded-lg bg-card border border-border overflow-hidden shadow-card animate-slide-up">
@@ -34,7 +36,7 @@ export function ContentCard({ item, lang = 'en' }: { item: ContentItem; lang?: '
           <div className="absolute inset-0 bg-background/40 backdrop-blur-sm flex items-center justify-center">
             <div className="flex flex-col items-center gap-1">
               <Lock size={24} className="text-foreground/70" />
-              <span className="text-xs font-semibold text-foreground/70">Subscribe to unlock</span>
+              <span className="text-xs font-semibold text-foreground/70">{lockLabel}</span>
             </div>
           </div>
         )}
@@ -52,7 +54,7 @@ export function ContentCard({ item, lang = 'en' }: { item: ContentItem; lang?: '
         )}
 
         <div className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-semibold text-muted-foreground uppercase flex items-center gap-1">
-          {typeIcon[item.type]} {typeLabel[item.type]}
+          {typeIcon[item.type]} {typeLabel[lang][item.type]}
         </div>
       </div>
 
@@ -69,7 +71,7 @@ export function ContentCard({ item, lang = 'en' }: { item: ContentItem; lang?: '
         <h3 className="text-sm font-bold text-foreground leading-snug">{title}</h3>
         <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{description}</p>
 
-        {showLang === 'en' && (
+        {lang === 'en' && (
           <span className="inline-flex items-center gap-1 text-[10px] text-primary/70 mt-1.5">
             <Globe size={10} /> Auto-translated by mydrill AI
           </span>
@@ -77,13 +79,13 @@ export function ContentCard({ item, lang = 'en' }: { item: ContentItem; lang?: '
 
         {item.type === 'live' && item.liveDate && (
           <button className="mt-2 flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-semibold px-3 py-1.5 rounded-md">
-            <Bell size={12} /> Notify me
+            <Bell size={12} /> {notifyLabel}
           </button>
         )}
 
         {item.type === 'plan' && !item.locked && (
           <button className="mt-2 flex items-center gap-1.5 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1.5 rounded-md">
-            <FileText size={12} /> Download PDF
+            <FileText size={12} /> {downloadLabel}
           </button>
         )}
 
@@ -96,12 +98,6 @@ export function ContentCard({ item, lang = 'en' }: { item: ContentItem; lang?: '
           </button>
           <button className="flex items-center gap-1 text-muted-foreground text-xs hover:text-primary transition-colors">
             <Share2 size={14} />
-          </button>
-          <button
-            onClick={() => setShowLang(showLang === 'en' ? 'pt' : 'en')}
-            className="ml-auto text-[10px] font-semibold text-primary/70 uppercase tracking-wider hover:text-primary transition-colors"
-          >
-            {showLang === 'en' ? 'PT' : 'EN'}
           </button>
         </div>
       </div>

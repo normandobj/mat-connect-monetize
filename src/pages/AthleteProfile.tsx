@@ -5,20 +5,23 @@ import { ContentCard } from '@/components/ContentCard';
 import { ArrowLeft, Users, Video, Globe, Dumbbell, Radio, FileText, Star, Check } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const AthleteProfile = () => {
   const { username } = useParams();
   const navigate = useNavigate();
-  const [bioLang, setBioLang] = useState<'pt' | 'en'>('en');
+  const { lang, setLang } = useLanguage();
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'quarterly' | 'annual'>('quarterly');
 
   const athlete = mockAthletes.find((a) => a.username === username) || mockAthletes[0];
   const content = mockContent.filter((c) => c.athleteId === athlete.id);
 
+  const isEn = lang === 'en';
+
   const plans = [
-    { key: 'monthly' as const, label: 'Monthly', price: athlete.monthlyPrice, period: '/mo' },
-    { key: 'quarterly' as const, label: 'Quarterly', price: athlete.quarterlyPrice, period: '/3mo', badge: 'Popular' },
-    { key: 'annual' as const, label: 'Annual', price: athlete.annualPrice, period: '/yr', badge: 'Best Value' },
+    { key: 'monthly' as const, label: isEn ? 'Monthly' : 'Mensal', price: athlete.monthlyPrice, period: isEn ? '/mo' : '/mês' },
+    { key: 'quarterly' as const, label: isEn ? 'Quarterly' : 'Trimestral', price: athlete.quarterlyPrice, period: isEn ? '/3mo' : '/3meses', badge: isEn ? 'Popular' : 'Popular' },
+    { key: 'annual' as const, label: isEn ? 'Annual' : 'Anual', price: athlete.annualPrice, period: isEn ? '/yr' : '/ano', badge: isEn ? 'Best Value' : 'Melhor Valor' },
   ];
 
   return (
@@ -32,6 +35,21 @@ const AthleteProfile = () => {
           >
             <ArrowLeft size={16} className="text-foreground" />
           </button>
+          {/* Language Toggle */}
+          <div className="absolute top-4 right-4 z-10 flex items-center gap-1 bg-background/60 backdrop-blur-sm border border-border rounded-full px-2 py-1">
+            <button
+              onClick={() => setLang('pt')}
+              className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${lang === 'pt' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+            >
+              PT
+            </button>
+            <button
+              onClick={() => setLang('en')}
+              className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${lang === 'en' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+            >
+              EN
+            </button>
+          </div>
         </div>
 
         {/* Profile Info */}
@@ -51,27 +69,13 @@ const AthleteProfile = () => {
 
           {/* Bio */}
           <div className="mt-4">
-            <div className="flex items-center gap-2 mb-2">
-              <button
-                onClick={() => setBioLang('pt')}
-                className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded ${bioLang === 'pt' ? 'bg-primary/20 text-primary' : 'text-muted-foreground'}`}
-              >
-                PT
-              </button>
-              <button
-                onClick={() => setBioLang('en')}
-                className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded ${bioLang === 'en' ? 'bg-primary/20 text-primary' : 'text-muted-foreground'}`}
-              >
-                EN
-              </button>
-              {bioLang === 'en' && (
-                <span className="text-[10px] text-primary/70 flex items-center gap-0.5">
-                  <Globe size={10} /> Auto-translated
-                </span>
-              )}
-            </div>
+            {isEn && (
+              <span className="inline-flex items-center gap-1 text-[10px] text-primary/70 mb-1.5">
+                <Globe size={10} /> Auto-translated
+              </span>
+            )}
             <p className="text-sm text-secondary-foreground leading-relaxed">
-              {bioLang === 'en' ? athlete.bio_en : athlete.bio_pt}
+              {isEn ? athlete.bio_en : athlete.bio_pt}
             </p>
           </div>
 

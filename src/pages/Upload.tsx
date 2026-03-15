@@ -19,8 +19,25 @@ const UploadPage = () => {
   const [autoTranslate, setAutoTranslate] = useState(true);
   const [visibility, setVisibility] = useState<'subscribers' | 'free'>('subscribers');
 
-  const translatedTitle = title ? title.replace(/Raspagem/g, 'Sweep').replace(/Guarda/g, 'Guard') + ' (EN preview)' : '';
-  const translatedDesc = description ? description + ' (auto-translated preview)' : '';
+  // Simulates a realistic translation by mapping common BJJ terms PT → EN
+  const bjjTerms: Record<string, string> = {
+    'Raspagem': 'Sweep', 'raspagem': 'sweep',
+    'Guarda': 'Guard', 'guarda': 'guard',
+    'Passagem': 'Pass', 'passagem': 'pass',
+    'Finalização': 'Submission', 'finalização': 'submission',
+    'Posição': 'Position', 'posição': 'position',
+    'Treino': 'Training', 'treino': 'training',
+    'Planilha': 'Training Plan', 'planilha': 'training plan',
+    'Drill': 'Drill', 'Faixa': 'Belt', 'faixa': 'belt',
+    'Competição': 'Competition', 'competição': 'competition',
+    'Gancho': 'Hook', 'gancho': 'hook',
+    'De La Riva': 'De La Riva', 'Berimbolo': 'Berimbolo',
+    'Costas': 'Back', 'costas': 'back',
+  };
+  const mockTranslate = (text: string) =>
+    Object.entries(bjjTerms).reduce((t, [pt, en]) => t.replaceAll(pt, en), text);
+  const translatedTitle = title ? mockTranslate(title) : '';
+  const translatedDesc = description ? mockTranslate(description) : '';
 
   return (
     <AppShell showNav={false}>

@@ -3,9 +3,11 @@ import { ContentCard } from '@/components/ContentCard';
 import { mockContent, mockAthletes } from '@/data/mockData';
 import { Bell, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Feed = () => {
   const navigate = useNavigate();
+  const { lang, setLang } = useLanguage();
 
   return (
     <AppShell>
@@ -13,12 +15,27 @@ const Feed = () => {
       <header className="flex items-center justify-between px-4 py-3 border-b border-border sticky top-0 bg-background/95 backdrop-blur-md z-40">
         <h1 className="text-lg font-black text-foreground tracking-tight">mydrill<span className="text-primary">.app</span></h1>
         <div className="flex items-center gap-3">
+          {/* Language Toggle */}
+          <div className="flex items-center gap-1 bg-card border border-border rounded-full px-2 py-1">
+            <button
+              onClick={() => setLang('pt')}
+              className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${lang === 'pt' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+            >
+              PT
+            </button>
+            <button
+              onClick={() => setLang('en')}
+              className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${lang === 'en' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+            >
+              EN
+            </button>
+          </div>
           <button className="relative">
             <Bell size={20} className="text-muted-foreground" />
             <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-primary" />
           </button>
           <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
-            Y
+            N
           </div>
         </div>
       </header>
@@ -45,7 +62,9 @@ const Feed = () => {
           <div className="w-14 h-14 rounded-full border-2 border-dashed border-border flex items-center justify-center">
             <ChevronRight size={16} className="text-muted-foreground" />
           </div>
-          <span className="text-[10px] text-muted-foreground font-medium">More</span>
+          <span className="text-[10px] text-muted-foreground font-medium">
+            {lang === 'en' ? 'More' : 'Mais'}
+          </span>
         </button>
       </div>
 
