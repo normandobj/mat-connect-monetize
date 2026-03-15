@@ -1,5 +1,5 @@
 import { AppShell } from '@/components/AppShell';
-import { Users, DollarSign, FileText, Flame, Plus, Radio, Dumbbell, Link, Copy, Check, ChevronDown, LogOut } from 'lucide-react';
+import { Users, DollarSign, FileText, Flame, Plus, Radio, Dumbbell, Link, Copy, Check, ChevronDown, LogOut, Pencil } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -73,9 +73,14 @@ const Dashboard = () => {
       <div className="px-4 py-6">
         <div className="flex items-center justify-between mb-1">
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Ola, {athlete.name.split(' ')[0]} 👊</h1>
-          <button onClick={handleLogout} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
-            <LogOut size={14} /> Sair
-          </button>
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate('/dashboard/edit')} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors">
+              <Pencil size={14} /> Editar
+            </button>
+            <button onClick={handleLogout} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <LogOut size={14} /> Sair
+            </button>
+          </div>
         </div>
         <p className="text-sm text-muted-foreground mt-1">Visao geral do seu perfil.</p>
 

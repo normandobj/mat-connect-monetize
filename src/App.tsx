@@ -15,6 +15,7 @@ import Subscribe from "./pages/Subscribe";
 import Register from "./pages/Register";
 import Invite from "./pages/Invite";
 import Auth from "./pages/Auth";
+import EditProfile from "./pages/EditProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/athlete/:username" element={<AthleteProfile />} />
               <Route path="/feed" element={<Feed />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard/edit" element={<EditProfile />} />
               <Route path="/explore" element={<Explore />} />
               <Route path="/upload" element={<UploadPage />} />
               <Route path="/subscribe/:username" element={<Subscribe />} />
