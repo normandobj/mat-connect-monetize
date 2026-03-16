@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-const Dashboard = () => {
+const Dashboard = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
   const { user, athleteProfile, signOut, loading, refreshProfile } = useAuth();
   const [copiedLink, setCopiedLink] = useState(false);
