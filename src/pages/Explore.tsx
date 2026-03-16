@@ -17,7 +17,7 @@ const filters: { label: string; value: string }[] = [
   { label: 'Brazil', value: 'brazil' },
 ];
 
-const Explore = () => {
+const Explore = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [activeFilter, setActiveFilter] = useState('all');
