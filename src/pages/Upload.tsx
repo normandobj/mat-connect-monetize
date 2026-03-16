@@ -18,7 +18,7 @@ const contentTypes = [
   { key: 'plan', icon: FileText, label: 'Planilha de Treino', desc: 'Escreva sua planilha em texto' },
 ];
 
-const UploadPage = () => {
+const UploadPage = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
   const { user, athleteProfile, loading: authLoading } = useAuth();
   const { lang } = useLanguage();
