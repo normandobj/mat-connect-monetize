@@ -2,7 +2,7 @@ import { AppShell } from '@/components/AppShell';
 import { AthleteCard } from '@/components/AthleteCard';
 import { mockAthletes, type BeltRank, type Athlete } from '@/data/mockData';
 import { Search } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
