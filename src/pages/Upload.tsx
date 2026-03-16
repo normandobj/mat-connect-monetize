@@ -1,6 +1,6 @@
 import { AppShell } from '@/components/AppShell';
 import { Video, Dumbbell, FileText, ArrowLeft, Upload as UploadIcon, Globe, AlignLeft, AlertTriangle, Info } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
