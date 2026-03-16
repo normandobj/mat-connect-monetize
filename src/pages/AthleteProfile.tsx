@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { ContentItem, BeltRank } from '@/data/mockData';
 
-const AthleteProfile = () => {
+const AthleteProfile = forwardRef<HTMLDivElement>((_, ref) => {
   const { username } = useParams();
   const navigate = useNavigate();
   const { lang, setLang } = useLanguage();
