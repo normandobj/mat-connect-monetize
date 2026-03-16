@@ -2,6 +2,7 @@ import { ArrowLeft, Camera, ImagePlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import { type BeltRank } from '@/data/mockData';
+import { forwardRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
