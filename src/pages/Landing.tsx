@@ -69,7 +69,7 @@ const content = {
 const stepIcons_students = [Search, CreditCard, Dumbbell];
 const stepIcons_athletes = [UserPlus, DollarSign, Smartphone];
 
-const Landing = () => {
+const Landing = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
   const { lang, setLang } = useLanguage();
   const { user, userRole } = useAuth();
