@@ -20,7 +20,7 @@ interface Notification {
   content_title?: string;
 }
 
-export default function Notifications() {
+const Notifications = forwardRef<HTMLDivElement>(function Notifications(_, ref) {
   const { user, loading: authLoading } = useAuth();
   const { lang } = useLanguage();
   const navigate = useNavigate();
