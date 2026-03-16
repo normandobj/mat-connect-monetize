@@ -15,7 +15,7 @@ const belts: { rank: BeltRank; color: string }[] = [
   { rank: 'black', color: 'bg-belt-black' },
 ];
 
-const Register = () => {
+const Register = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
   const { user, athleteProfile, refreshProfile } = useAuth();
   const [step, setStep] = useState(1);
