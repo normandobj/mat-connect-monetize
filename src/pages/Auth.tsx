@@ -5,7 +5,7 @@ import { lovable } from '@/integrations/lovable/index';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 
-const Auth = () => {
+const Auth = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
   const { user, userRole, loading: authLoading } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
