@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { BeltBadge } from '@/components/BeltBadge';
 import { Check, Gift, Clock, CreditCard } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, forwardRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { BeltRank } from '@/data/mockData';
 
