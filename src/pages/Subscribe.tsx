@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { BeltBadge } from '@/components/BeltBadge';
 import { ArrowLeft, Check } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
