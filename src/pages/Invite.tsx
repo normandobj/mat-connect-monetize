@@ -16,7 +16,7 @@ const planLabels: Record<string, { title: string; subtitle: string; badge: strin
   annual:    { title: 'Plano Anual', subtitle: 'Melhor custo-beneficio. Acesso por 12 meses.', badge: 'Melhor Valor', badgeColor: 'bg-primary/20 text-primary', icon: CreditCard },
 };
 
-const Invite = () => {
+const Invite = forwardRef<HTMLDivElement>((_, ref) => {
   const { username, plan } = useParams();
   const navigate = useNavigate();
   const [athlete, setAthlete] = useState<any>(null);
