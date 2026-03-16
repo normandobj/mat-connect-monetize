@@ -13,7 +13,7 @@ import type { ContentItem } from '@/data/mockData';
 
 const PAGE_SIZE = 10;
 
-const Feed = () => {
+const Feed = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
   const { lang, setLang } = useLanguage();
   const { user, signOut, loading: authLoading } = useAuth();
