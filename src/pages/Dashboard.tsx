@@ -39,16 +39,13 @@ const Dashboard = () => {
           .select('*')
           .eq('user_id', user.id)
           .maybeSingle()
-          .then(async ({ data }) => {
-            if (data) {
+          .then(async ({ data, error }) => {
+            if (error || !data) {
+              navigate('/register/athlete', { replace: true });
+            } else {
               await refreshProfile();
               setIsProfileLoading(false);
-            } else {
-              navigate('/register/athlete', { replace: true });
             }
-          })
-          .catch(() => {
-            navigate('/register/athlete', { replace: true });
           });
       }
     }
