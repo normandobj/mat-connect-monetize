@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { BeltBadge } from '@/components/BeltBadge';
 import { ContentCard } from '@/components/ContentCard';
 import { ArrowLeft, Users, Video, Globe, Dumbbell, Radio, FileText, Star, Check, MessageSquare } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { ContentItem, BeltRank } from '@/data/mockData';
 
-const AthleteProfile = () => {
+const AthleteProfile = forwardRef<HTMLDivElement>((_, ref) => {
   const { username } = useParams();
   const navigate = useNavigate();
   const { lang, setLang } = useLanguage();
@@ -243,6 +243,7 @@ const AthleteProfile = () => {
       </div>
     </div>
   );
-};
+});
 
+AthleteProfile.displayName = 'AthleteProfile';
 export default AthleteProfile;

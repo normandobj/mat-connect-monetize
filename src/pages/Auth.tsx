@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable/index';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 
-const Auth = () => {
+const Auth = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
   const { user, userRole, loading: authLoading } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
@@ -189,6 +189,7 @@ const Auth = () => {
       </div>
     </div>
   );
-};
+});
 
+Auth.displayName = 'Auth';
 export default Auth;

@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, forwardRef } from 'react';
 import { toast } from 'sonner';
 
 const content = {
@@ -69,7 +69,7 @@ const content = {
 const stepIcons_students = [Search, CreditCard, Dumbbell];
 const stepIcons_athletes = [UserPlus, DollarSign, Smartphone];
 
-const Landing = () => {
+const Landing = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
   const { lang, setLang } = useLanguage();
   const { user, userRole } = useAuth();
@@ -198,6 +198,7 @@ const Landing = () => {
       </div>
     </div>
   );
-};
+});
 
+Landing.displayName = 'Landing';
 export default Landing;

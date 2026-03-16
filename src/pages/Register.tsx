@@ -2,6 +2,7 @@ import { ArrowLeft, Camera, ImagePlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import { type BeltRank } from '@/data/mockData';
+import { forwardRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -14,7 +15,7 @@ const belts: { rank: BeltRank; color: string }[] = [
   { rank: 'black', color: 'bg-belt-black' },
 ];
 
-const Register = () => {
+const Register = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
   const { user, athleteProfile, refreshProfile } = useAuth();
   const [step, setStep] = useState(1);
@@ -291,6 +292,7 @@ const Register = () => {
       </div>
     </div>
   );
-};
+});
 
+Register.displayName = 'Register';
 export default Register;

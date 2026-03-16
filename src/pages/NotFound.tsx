@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, forwardRef } from "react";
 
-const NotFound = () => {
+const NotFound = forwardRef<HTMLDivElement>((_, ref) => {
   const location = useLocation();
 
   useEffect(() => {
@@ -19,6 +19,7 @@ const NotFound = () => {
       </div>
     </div>
   );
-};
+});
 
+NotFound.displayName = 'NotFound';
 export default NotFound;

@@ -6,14 +6,14 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, forwardRef } from 'react';
 import { toast } from 'sonner';
 import { Radio } from 'lucide-react';
 import type { ContentItem } from '@/data/mockData';
 
 const PAGE_SIZE = 10;
 
-const Feed = () => {
+const Feed = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
   const { lang, setLang } = useLanguage();
   const { user, signOut, loading: authLoading } = useAuth();
@@ -259,6 +259,7 @@ const Feed = () => {
       </div>
     </AppShell>
   );
-};
+});
 
+Feed.displayName = 'Feed';
 export default Feed;

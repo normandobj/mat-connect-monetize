@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { BeltBadge } from '@/components/BeltBadge';
 import { Check, Gift, Clock, CreditCard } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, forwardRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { BeltRank } from '@/data/mockData';
 
@@ -16,7 +16,7 @@ const planLabels: Record<string, { title: string; subtitle: string; badge: strin
   annual:    { title: 'Plano Anual', subtitle: 'Melhor custo-beneficio. Acesso por 12 meses.', badge: 'Melhor Valor', badgeColor: 'bg-primary/20 text-primary', icon: CreditCard },
 };
 
-const Invite = () => {
+const Invite = forwardRef<HTMLDivElement>((_, ref) => {
   const { username, plan } = useParams();
   const navigate = useNavigate();
   const [athlete, setAthlete] = useState<any>(null);
@@ -143,6 +143,7 @@ const Invite = () => {
       </div>
     </div>
   );
-};
+});
 
+Invite.displayName = 'Invite';
 export default Invite;

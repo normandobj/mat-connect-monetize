@@ -2,13 +2,13 @@ import { AppShell } from '@/components/AppShell';
 import { Users, DollarSign, FileText, Plus, Radio, Link, Copy, Check, ChevronDown, LogOut, Pencil, MessageSquare, Calendar } from 'lucide-react';
 import { LiveSection } from '@/components/LiveSection';
 import { ScheduleLiveModal } from '@/components/ScheduleLiveModal';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-const Dashboard = () => {
+const Dashboard = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
   const { user, athleteProfile, signOut, loading, refreshProfile } = useAuth();
   const [copiedLink, setCopiedLink] = useState(false);
@@ -313,6 +313,7 @@ const Dashboard = () => {
       )}
     </AppShell>
   );
-};
+});
 
+Dashboard.displayName = 'Dashboard';
 export default Dashboard;

@@ -1,14 +1,14 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { BeltBadge } from '@/components/BeltBadge';
 import { ArrowLeft, Check } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { BeltRank } from '@/data/mockData';
 
-const Subscribe = () => {
+const Subscribe = forwardRef<HTMLDivElement>((_, ref) => {
   const { username } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -135,6 +135,7 @@ const Subscribe = () => {
       </div>
     </div>
   );
-};
+});
 
+Subscribe.displayName = 'Subscribe';
 export default Subscribe;

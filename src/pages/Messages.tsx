@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, forwardRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Send, Search, Lock, ExternalLink } from 'lucide-react';
 import { AppShell } from '@/components/AppShell';
@@ -31,7 +31,7 @@ interface AthleteSearchResult {
   subscribed: boolean;
 }
 
-const Messages = () => {
+const Messages = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
   const { userId: routeUserId } = useParams();
   const { user, loading: authLoading } = useAuth();
@@ -434,6 +434,7 @@ const Messages = () => {
       </div>
     </AppShell>
   );
-};
+});
 
+Messages.displayName = 'Messages';
 export default Messages;

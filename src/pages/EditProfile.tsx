@@ -1,13 +1,13 @@
 import { ArrowLeft, Camera, ImagePlus, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, forwardRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { GoogleMeetConnection } from '@/components/GoogleMeetConnection';
 
-const EditProfile = () => {
+const EditProfile = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { user, athleteProfile, refreshProfile, loading } = useAuth();
@@ -304,6 +304,7 @@ const EditProfile = () => {
       </div>
     </div>
   );
-};
+});
 
+EditProfile.displayName = 'EditProfile';
 export default EditProfile;
