@@ -39,15 +39,13 @@ const Dashboard = () => {
           .select('*')
           .eq('user_id', user.id)
           .maybeSingle()
-          .then(async ({ data }) => {
-            if (data) {
-              // Profile exists in DB - refresh context to pick it up
-              await refreshProfile();
+          .then(async ({ data, error }) => {
+            if (error || !data) {
+              navigate('/register/athlete', { replace: true });
             } else {
-              // Truly no profile - redirect to registration
-              navigate('/register/athlete');
+              await refreshProfile();
+              setIsProfileLoading(false);
             }
-            setIsProfileLoading(false);
           });
       }
     }
