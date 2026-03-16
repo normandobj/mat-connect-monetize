@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { GoogleMeetConnection } from '@/components/GoogleMeetConnection';
 
-const EditProfile = () => {
+const EditProfile = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { user, athleteProfile, refreshProfile, loading } = useAuth();
