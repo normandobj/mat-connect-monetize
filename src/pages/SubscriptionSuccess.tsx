@@ -1,8 +1,9 @@
+import { forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-const SubscriptionSuccess = () => {
+const SubscriptionSuccess = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
 
