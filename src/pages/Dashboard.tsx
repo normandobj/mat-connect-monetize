@@ -49,7 +49,7 @@ const Dashboard = forwardRef<HTMLDivElement>((_, ref) => {
           });
       }
     }
-  }, [user, loading]);
+  }, [user, loading, athleteProfile]);
 
   useEffect(() => {
     if (athleteProfile) {
