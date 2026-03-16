@@ -31,7 +31,7 @@ interface AthleteSearchResult {
   subscribed: boolean;
 }
 
-const Messages = () => {
+const Messages = forwardRef<HTMLDivElement>((_, ref) => {
   const navigate = useNavigate();
   const { userId: routeUserId } = useParams();
   const { user, loading: authLoading } = useAuth();
