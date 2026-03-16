@@ -41,13 +41,14 @@ const Dashboard = () => {
           .maybeSingle()
           .then(async ({ data }) => {
             if (data) {
-              // Profile exists in DB - refresh context to pick it up
               await refreshProfile();
+              setIsProfileLoading(false);
             } else {
-              // Truly no profile - redirect to registration
-              navigate('/register/athlete');
+              navigate('/register/athlete', { replace: true });
             }
-            setIsProfileLoading(false);
+          })
+          .catch(() => {
+            navigate('/register/athlete', { replace: true });
           });
       }
     }
