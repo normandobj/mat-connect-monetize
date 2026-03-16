@@ -32,7 +32,15 @@ export default function Notifications() {
   useEffect(() => {
     if (authLoading) return;
     if (!user) { navigate('/auth'); return; }
-    fetchNotifications();
+
+    // Ensure session is ready before querying RLS-protected tables
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        setLoading(false);
+        return;
+      }
+      fetchNotifications();
+    }).catch(() => setLoading(false));
 
     const channel = supabase
       .channel('notifications-realtime')
