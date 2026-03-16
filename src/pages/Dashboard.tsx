@@ -313,6 +313,7 @@ const Dashboard = forwardRef<HTMLDivElement>((_, ref) => {
       )}
     </AppShell>
   );
-};
+});
 
+Dashboard.displayName = 'Dashboard';
 export default Dashboard;

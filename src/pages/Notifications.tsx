@@ -227,4 +227,7 @@ const Notifications = forwardRef<HTMLDivElement>(function Notifications(_, ref) 
       </div>
     </AppShell>
   );
-}
+});
+
+Notifications.displayName = 'Notifications';
+export default Notifications;

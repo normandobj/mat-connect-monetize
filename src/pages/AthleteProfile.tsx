@@ -243,6 +243,7 @@ const AthleteProfile = forwardRef<HTMLDivElement>((_, ref) => {
       </div>
     </div>
   );
-};
+});
 
+AthleteProfile.displayName = 'AthleteProfile';
 export default AthleteProfile;

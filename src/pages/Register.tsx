@@ -292,6 +292,7 @@ const Register = forwardRef<HTMLDivElement>((_, ref) => {
       </div>
     </div>
   );
-};
+});
 
+Register.displayName = 'Register';
 export default Register;

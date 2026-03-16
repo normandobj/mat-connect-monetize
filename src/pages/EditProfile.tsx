@@ -304,6 +304,7 @@ const EditProfile = forwardRef<HTMLDivElement>((_, ref) => {
       </div>
     </div>
   );
-};
+});
 
+EditProfile.displayName = 'EditProfile';
 export default EditProfile;

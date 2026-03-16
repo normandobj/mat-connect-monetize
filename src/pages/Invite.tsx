@@ -143,6 +143,7 @@ const Invite = forwardRef<HTMLDivElement>((_, ref) => {
       </div>
     </div>
   );
-};
+});
 
+Invite.displayName = 'Invite';
 export default Invite;

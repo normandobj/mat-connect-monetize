@@ -135,6 +135,7 @@ const Subscribe = forwardRef<HTMLDivElement>((_, ref) => {
       </div>
     </div>
   );
-};
+});
 
+Subscribe.displayName = 'Subscribe';
 export default Subscribe;

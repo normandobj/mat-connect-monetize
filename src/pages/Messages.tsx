@@ -434,6 +434,7 @@ const Messages = forwardRef<HTMLDivElement>((_, ref) => {
       </div>
     </AppShell>
   );
-};
+});
 
+Messages.displayName = 'Messages';
 export default Messages;

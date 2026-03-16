@@ -120,6 +120,7 @@ const Explore = forwardRef<HTMLDivElement>((_, ref) => {
       </div>
     </AppShell>
   );
-};
+});
 
+Explore.displayName = 'Explore';
 export default Explore;

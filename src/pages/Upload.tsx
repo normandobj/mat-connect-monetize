@@ -350,6 +350,7 @@ const UploadPage = forwardRef<HTMLDivElement>((_, ref) => {
       </div>
     </AppShell>
   );
-};
+});
 
+UploadPage.displayName = 'UploadPage';
 export default UploadPage;

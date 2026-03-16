@@ -19,6 +19,7 @@ const NotFound = forwardRef<HTMLDivElement>((_, ref) => {
       </div>
     </div>
   );
-};
+});
 
+NotFound.displayName = 'NotFound';
 export default NotFound;

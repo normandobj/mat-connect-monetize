@@ -30,6 +30,7 @@ const SubscriptionSuccess = forwardRef<HTMLDivElement>((_, ref) => {
       </div>
     </div>
   );
-};
+});
 
+SubscriptionSuccess.displayName = 'SubscriptionSuccess';
 export default SubscriptionSuccess;

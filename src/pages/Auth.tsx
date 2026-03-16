@@ -189,6 +189,7 @@ const Auth = forwardRef<HTMLDivElement>((_, ref) => {
       </div>
     </div>
   );
-};
+});
 
+Auth.displayName = 'Auth';
 export default Auth;

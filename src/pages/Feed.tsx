@@ -259,6 +259,7 @@ const Feed = forwardRef<HTMLDivElement>((_, ref) => {
       </div>
     </AppShell>
   );
-};
+});
 
+Feed.displayName = 'Feed';
 export default Feed;
