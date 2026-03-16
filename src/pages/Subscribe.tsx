@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { BeltRank } from '@/data/mockData';
 
-const Subscribe = () => {
+const Subscribe = forwardRef<HTMLDivElement>((_, ref) => {
   const { username } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
