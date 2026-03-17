@@ -22,6 +22,10 @@ import Notifications from "./pages/Notifications";
 import Treinos from "./pages/Treinos";
 import Protocolo21 from "./pages/Protocolo21";
 import CursoDestaque from "./pages/CursoDestaque";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminAthletes from "./pages/admin/AdminAthletes";
+import AdminContent from "./pages/admin/AdminContent";
+import AdminSubscriptions from "./pages/admin/AdminSubscriptions";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
