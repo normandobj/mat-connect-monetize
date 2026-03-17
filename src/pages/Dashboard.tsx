@@ -1,5 +1,5 @@
 import { AppShell } from '@/components/AppShell';
-import { Users, DollarSign, FileText, Plus, Radio, Link, Copy, Check, ChevronDown, LogOut, Pencil, MessageSquare, Calendar } from 'lucide-react';
+import { Users, DollarSign, FileText, Plus, Radio, Link, Copy, Check, ChevronDown, LogOut, Pencil, MessageSquare, Calendar, Eye } from 'lucide-react';
 import { LiveSection } from '@/components/LiveSection';
 import { ScheduleLiveModal } from '@/components/ScheduleLiveModal';
 import { useState, useEffect, forwardRef } from 'react';
