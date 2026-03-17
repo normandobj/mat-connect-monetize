@@ -57,6 +57,10 @@ const App = () => (
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/subscription-success" element={<SubscriptionSuccess />} />
               <Route path="/invite/:username/:plan" element={<Invite />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/athletes" element={<AdminAthletes />} />
+              <Route path="/admin/content" element={<AdminContent />} />
+              <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
