@@ -158,6 +158,9 @@ const Dashboard = forwardRef<HTMLDivElement>((_, ref) => {
         <div className="flex items-center justify-between mb-1">
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Ola, {athlete.name.split(' ')[0]} 👊</h1>
           <div className="flex items-center gap-3">
+            <button onClick={() => navigate(`/athlete/${athlete.username}`)} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <Eye size={14} /> Ver perfil
+            </button>
             <button onClick={() => navigate('/dashboard/edit')} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors">
               <Pencil size={14} /> Editar
             </button>
