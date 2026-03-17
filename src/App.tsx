@@ -19,6 +19,7 @@ import EditProfile from "./pages/EditProfile";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import Messages from "./pages/Messages";
 import Notifications from "./pages/Notifications";
+import Treinos from "./pages/Treinos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/dashboard/edit" element={<EditProfile />} />
               <Route path="/explore" element={<Explore />} />
+              <Route path="/treinos" element={<Treinos />} />
               <Route path="/upload" element={<UploadPage />} />
               <Route path="/subscribe/:username" element={<Subscribe />} />
               <Route path="/register/athlete" element={<Register />} />
