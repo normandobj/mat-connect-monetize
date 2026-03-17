@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { BarChart3, Users, FileText, CreditCard, Shield, LogOut, ChevronLeft } from 'lucide-react';
+import { BarChart3, Users, FileText, CreditCard, Shield, LogOut, ChevronLeft, Dumbbell } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { icon: Users, label: 'Atletas', path: '/admin/athletes' },
   { icon: FileText, label: 'Conteúdos', path: '/admin/content' },
   { icon: CreditCard, label: 'Assinaturas', path: '/admin/subscriptions' },
+  { icon: Dumbbell, label: 'Treinos', path: '/admin/treinos' },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
