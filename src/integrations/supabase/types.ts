@@ -337,6 +337,36 @@ export type Database = {
         }
         Relationships: []
       }
+      protocol_days: {
+        Row: {
+          created_at: string
+          day_number: number
+          focus: string
+          id: string
+          sort_order: number
+          week_number: number
+          week_title: string | null
+        }
+        Insert: {
+          created_at?: string
+          day_number: number
+          focus: string
+          id?: string
+          sort_order?: number
+          week_number: number
+          week_title?: string | null
+        }
+        Update: {
+          created_at?: string
+          day_number?: number
+          focus?: string
+          id?: string
+          sort_order?: number
+          week_number?: number
+          week_title?: string | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           athlete_id: string
@@ -371,6 +401,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      training_banners: {
+        Row: {
+          badge_color: string | null
+          badge_text: string | null
+          created_at: string
+          cta_text: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          link: string
+          meta_icon: string | null
+          meta_text: string | null
+          sort_order: number
+          title: string
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          badge_color?: string | null
+          badge_text?: string | null
+          created_at?: string
+          cta_text?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          link?: string
+          meta_icon?: string | null
+          meta_text?: string | null
+          sort_order?: number
+          title: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          badge_color?: string | null
+          badge_text?: string | null
+          created_at?: string
+          cta_text?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          link?: string
+          meta_icon?: string | null
+          meta_text?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
