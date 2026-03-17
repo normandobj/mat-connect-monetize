@@ -1,9 +1,12 @@
 import { AppShell } from '@/components/AppShell';
 import { Dumbbell, ArrowRight, Clock, Star } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import bannerProtocolo from '@/assets/banner-protocolo-21.jpg';
 import bannerCurso from '@/assets/banner-curso-destaque.jpg';
 
 export default function Treinos() {
+  const navigate = useNavigate();
+
   return (
     <AppShell>
       <div className="px-4 py-6 pb-24">
