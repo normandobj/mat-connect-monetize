@@ -40,7 +40,7 @@ export default function Treinos() {
         </div>
 
         {/* Banner 2 — Curso em Destaque */}
-        <div className="relative rounded-xl overflow-hidden shadow-lg group cursor-pointer active:scale-[0.98] transition-transform">
+        <div onClick={() => navigate('/treinos/curso-destaque')} className="relative rounded-xl overflow-hidden shadow-lg group cursor-pointer active:scale-[0.98] transition-transform">
           <img src={bannerCurso} alt="Curso em Destaque" className="w-full h-48 object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-4">
