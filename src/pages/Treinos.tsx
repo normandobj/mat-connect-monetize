@@ -1,9 +1,12 @@
 import { AppShell } from '@/components/AppShell';
 import { Dumbbell, ArrowRight, Clock, Star } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import bannerProtocolo from '@/assets/banner-protocolo-21.jpg';
 import bannerCurso from '@/assets/banner-curso-destaque.jpg';
 
 export default function Treinos() {
+  const navigate = useNavigate();
+
   return (
     <AppShell>
       <div className="px-4 py-6 pb-24">
@@ -14,7 +17,7 @@ export default function Treinos() {
         <p className="text-sm text-muted-foreground mb-6">Protocolos e cursos para evoluir seu jogo.</p>
 
         {/* Banner 1 — Protocolo 21 Dias */}
-        <div className="relative rounded-xl overflow-hidden shadow-lg group cursor-pointer active:scale-[0.98] transition-transform mb-4">
+        <div onClick={() => navigate('/treinos/protocolo-21')} className="relative rounded-xl overflow-hidden shadow-lg group cursor-pointer active:scale-[0.98] transition-transform mb-4">
           <img src={bannerProtocolo} alt="Protocolo 21 Dias" className="w-full h-48 object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-4">
@@ -37,7 +40,7 @@ export default function Treinos() {
         </div>
 
         {/* Banner 2 — Curso em Destaque */}
-        <div className="relative rounded-xl overflow-hidden shadow-lg group cursor-pointer active:scale-[0.98] transition-transform">
+        <div onClick={() => navigate('/treinos/curso-destaque')} className="relative rounded-xl overflow-hidden shadow-lg group cursor-pointer active:scale-[0.98] transition-transform">
           <img src={bannerCurso} alt="Curso em Destaque" className="w-full h-48 object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-4">
