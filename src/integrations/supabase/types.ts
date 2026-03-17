@@ -253,6 +253,109 @@ export type Database = {
           },
         ]
       }
+      course_lessons: {
+        Row: {
+          created_at: string
+          duration: string | null
+          id: string
+          module_id: string
+          sort_order: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          duration?: string | null
+          id?: string
+          module_id: string
+          sort_order?: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          duration?: string | null
+          id?: string
+          module_id?: string
+          sort_order?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_lessons_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "course_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_modules: {
+        Row: {
+          course_id: string
+          created_at: string
+          id: string
+          sort_order: number
+          title: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+          title: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_modules_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "featured_course"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      featured_course: {
+        Row: {
+          badge_text: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          students_count: string | null
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          badge_text?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          students_count?: string | null
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          badge_text?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          students_count?: string | null
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           body: string
