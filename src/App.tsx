@@ -19,6 +19,7 @@ import EditProfile from "./pages/EditProfile";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import Messages from "./pages/Messages";
 import Notifications from "./pages/Notifications";
+import Treinos from "./pages/Treinos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

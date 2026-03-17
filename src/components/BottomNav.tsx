@@ -1,9 +1,10 @@
-import { Home, Compass, User } from 'lucide-react';
+import { Home, Compass, User, Dumbbell } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const navItems = [
   { icon: Home, label: 'Home', path: '/feed' },
+  { icon: Dumbbell, label: 'Treinos', path: '/treinos' },
   { icon: Compass, label: 'Explorar', path: '/explore' },
   { icon: User, label: 'Perfil', path: '/dashboard' },
 ];
