@@ -1,54 +1,82 @@
+import { useEffect, useState } from 'react';
 import { AppShell } from '@/components/AppShell';
 import { ArrowLeft, BookOpen, Clock, Play, Star, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import bannerCurso from '@/assets/banner-curso-destaque.jpg';
+import { supabase } from '@/integrations/supabase/client';
+import bannerCursoFallback from '@/assets/banner-curso-destaque.jpg';
 
-const modules = [
-  {
-    title: 'Módulo 1 — Fundamentos da Guarda',
-    lessons: [
-      { title: 'Postura e base na guarda fechada', duration: '12:30' },
-      { title: 'Quebra de postura do adversário', duration: '8:45' },
-      { title: 'Controle de manga e gola', duration: '10:20' },
-    ],
-  },
-  {
-    title: 'Módulo 2 — Raspagens Essenciais',
-    lessons: [
-      { title: 'Raspagem de tesoura — detalhes avançados', duration: '14:10' },
-      { title: 'Raspagem de pendulum', duration: '11:50' },
-      { title: 'Hip bump sweep e variações', duration: '9:30' },
-    ],
-  },
-  {
-    title: 'Módulo 3 — Finalizações',
-    lessons: [
-      { title: 'Triângulo — setup e ajustes', duration: '15:00' },
-      { title: 'Armlock da guarda fechada', duration: '12:20' },
-      { title: 'Omoplata — cadeia de ataques', duration: '13:45' },
-    ],
-  },
-  {
-    title: 'Módulo 4 — Gameplan Competitivo',
-    lessons: [
-      { title: 'Montando seu jogo A', duration: '18:00' },
-      { title: 'Transições entre posições', duration: '14:30' },
-      { title: 'Estratégia de luta e gestão de tempo', duration: '16:10' },
-    ],
-  },
-];
+interface CourseInfo {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  description: string | null;
+  badge_text: string | null;
+  image_url: string | null;
+  students_count: string | null;
+}
+
+interface Module {
+  id: string;
+  title: string;
+  sort_order: number;
+  lessons: { id: string; title: string; duration: string | null; sort_order: number }[];
+}
 
 export default function CursoDestaque() {
   const navigate = useNavigate();
+  const [course, setCourse] = useState<CourseInfo | null>(null);
+  const [modules, setModules] = useState<Module[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      const [courseRes, modulesRes, lessonsRes] = await Promise.all([
+        supabase.from('featured_course').select('*').limit(1).single(),
+        supabase.from('course_modules').select('*').order('sort_order'),
+        supabase.from('course_lessons').select('*').order('sort_order'),
+      ]);
+
+      if (courseRes.data) setCourse(courseRes.data as any);
+
+      const mods = (modulesRes.data || []) as any[];
+      const lessons = (lessonsRes.data || []) as any[];
+
+      setModules(
+        mods.map((m: any) => ({
+          ...m,
+          lessons: lessons.filter((l: any) => l.module_id === m.id),
+        }))
+      );
+      setLoading(false);
+    }
+    load();
+  }, []);
 
   const totalLessons = modules.reduce((a, m) => a + m.lessons.length, 0);
+  const bannerImg = course?.image_url || bannerCursoFallback;
+
+  if (loading) {
+    return (
+      <AppShell>
+        <div className="flex items-center justify-center h-64 text-muted-foreground">Carregando...</div>
+      </AppShell>
+    );
+  }
+
+  if (!course) {
+    return (
+      <AppShell>
+        <div className="flex items-center justify-center h-64 text-muted-foreground">Curso não encontrado</div>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>
       <div className="pb-24">
         {/* Hero */}
         <div className="relative h-56 overflow-hidden">
-          <img src={bannerCurso} alt="Curso em Destaque" className="w-full h-full object-cover" />
+          <img src={bannerImg} alt={course.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           <button
             onClick={() => navigate('/treinos')}
@@ -58,15 +86,17 @@ export default function CursoDestaque() {
           </button>
           <div className="absolute bottom-4 left-4 right-4">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[10px] font-bold uppercase tracking-widest bg-primary/90 text-primary-foreground px-2 py-0.5 rounded-full">
-                Novo Curso
-              </span>
+              {course.badge_text && (
+                <span className="text-[10px] font-bold uppercase tracking-widest bg-primary/90 text-primary-foreground px-2 py-0.5 rounded-full">
+                  {course.badge_text}
+                </span>
+              )}
               <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
                 <Star size={10} /> Em destaque
               </span>
             </div>
-            <h1 className="text-2xl font-black text-foreground">Guarda Completa</h1>
-            <p className="text-xs text-muted-foreground mt-1">Do zero ao avançado em guarda fechada</p>
+            <h1 className="text-2xl font-black text-foreground">{course.title}</h1>
+            {course.subtitle && <p className="text-xs text-muted-foreground mt-1">{course.subtitle}</p>}
           </div>
         </div>
 
@@ -76,7 +106,7 @@ export default function CursoDestaque() {
             {[
               { label: 'Módulos', value: String(modules.length), icon: BookOpen },
               { label: 'Aulas', value: String(totalLessons), icon: Play },
-              { label: 'Alunos', value: '230+', icon: Users },
+              { label: 'Alunos', value: course.students_count || '0', icon: Users },
             ].map((s) => (
               <div key={s.label} className="bg-card rounded-xl p-3 text-center border border-border">
                 <s.icon size={16} className="mx-auto text-primary mb-1" />
@@ -87,19 +117,18 @@ export default function CursoDestaque() {
           </div>
 
           {/* Description */}
-          <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-            Um curso completo sobre guarda fechada, desde os fundamentos até técnicas avançadas de competição.
-            Conteúdo atualizado semanalmente com novas aulas e variações.
-          </p>
+          {course.description && (
+            <p className="text-sm text-muted-foreground leading-relaxed mb-6">{course.description}</p>
+          )}
 
           {/* Modules */}
-          {modules.map((mod, mi) => (
-            <div key={mi} className="mb-6">
+          {modules.map((mod) => (
+            <div key={mod.id} className="mb-6">
               <h2 className="text-sm font-bold text-foreground mb-3">{mod.title}</h2>
               <div className="space-y-2">
-                {mod.lessons.map((lesson, li) => (
+                {mod.lessons.map((lesson) => (
                   <div
-                    key={li}
+                    key={lesson.id}
                     className="flex items-center gap-3 bg-card border border-border rounded-lg px-3 py-2.5"
                   >
                     <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary shrink-0">
